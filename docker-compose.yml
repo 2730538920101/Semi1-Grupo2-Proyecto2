@@ -1,0 +1,35 @@
+services: 
+  backend:
+    restart: on-failure
+    container_name: backend
+    image: carlosmz87/semi1-proyecto2-backend:local-V1
+    build: ./backend
+    ports:
+      - "3000:3000"
+    networks:
+      - app_net
+    environment:
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_PORT: ${DATABASE_PORT}
+      SERVER_HOST: ${SERVER_HOST}
+      SERVER_PORT: ${SERVER_PORT}
+
+  frontend:
+    depends_on:
+      - backend
+    container_name: frontend
+    image: carlosmz87/semi1-proyecto2-frontend:local-V1
+    build: ./frontend
+    ports:
+      - "4200:80"
+    networks:
+      - app_net
+    links:
+      - backend
+  
+networks:
+  app_net:
+    driver: bridge

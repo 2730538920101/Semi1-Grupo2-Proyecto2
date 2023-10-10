@@ -5,7 +5,7 @@ import { useHistory } from 'react-router'
 export default function Login() {
 
     const [tipo, setTipo] = useState(true);
-    const [stream, setStream] = useState(null);
+    const [videoStream, setVideoStream] = useState(null);
 
     const Container = styled.div`
         display: flex;
@@ -20,7 +20,7 @@ export default function Login() {
         border-radius: 30px;
         width: 25%;
         min-width: 300px;
-        height: 50%;
+        height: 45%;
         text-align: center;
         margin: auto;
         display: flex;
@@ -110,11 +110,9 @@ export default function Login() {
     const handleChangeMode = () => {
         setTipo(!tipo);
         if (tipo) {
-            // Activar la cámara
-            activateCamera();
+            startCamera();
         } else {
-            // Desactivar la cámara
-            deactivateCamera();
+            stopCamera();
         }
     };
 
@@ -123,23 +121,21 @@ export default function Login() {
         // Aquí puedes añadir tu lógica para el registro
     };
 
-    const activateCamera = async () => {
+    const startCamera = async () => {
         try {
-            const userMedia = await navigator.mediaDevices.getUserMedia({ video: true });
-            setStream(userMedia);
-            const videoElement = document.getElementById("video-preview");
-            if (videoElement) {
-                videoElement.srcObject = userMedia;
-            }
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            setVideoStream(stream);
+            const videoElement = document.getElementById("videoPreview");
+            if (videoElement) videoElement.srcObject = stream;
         } catch (error) {
-            console.error("Error accessing camera:", error);
+            console.error("Error accessing the camera: ", error);
         }
     };
 
-    const deactivateCamera = () => {
-        if (stream) {
-            stream.getTracks().forEach((track) => track.stop());
-            setStream(null);
+    const stopCamera = () => {
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            setVideoStream(null);
         }
     };
 
@@ -154,7 +150,9 @@ export default function Login() {
                             <TextField type="password" placeholder="Contraseña" variant='outlined' />
                         </>
                     ) : (
-                        <VideoPreview id="video-preview" autoPlay playsInline muted />
+                        <>
+                            <VideoPreview id="videoPreview" autoPlay playsInline />
+                        </>
                     )}
                     <ButtonsContainer>
                         <Button0 onClick={handleLogin}>Login</Button0>

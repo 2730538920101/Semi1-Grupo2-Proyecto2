@@ -1,0 +1,11 @@
+AWS_ACCESS_KEY = "AQUI PEGAN SU CLAVE DE ACCESO DE AWS"
+AWS_SECRET_KEY = "AQUI PEGAN SU CLAVE SECRETA DE AWS"
+AWS_REGION = "us-east-1"
+Semi1_vpc_cidr = "10.0.0.0/16"
+public1 = "10.0.1.0/24"
+user_ssh = "ubuntu"
+PATH_KEYPAIR = "semi1_key"
+PATH_PUBLIC_KEYPAIR = "semi1_key.pub"
+
+##COMANDO PARA GENERAR EL PAR DE CLAVES
+ssh-keygen -f semi1_key

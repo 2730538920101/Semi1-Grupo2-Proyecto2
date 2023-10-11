@@ -1,0 +1,15 @@
+*.tfvars
+*.tfvars.json
+.terraformrc
+terraform.rc
+crash.log
+crash.*.log
+# Local .terraform directories
+**.terraform/*
+# PUBLIC Y PRIVATE KEYS
+semi1_key
+semi1_key.pub
+# .tfstate files
+*.tfstate
+*.tfstate.*
+*.lock*

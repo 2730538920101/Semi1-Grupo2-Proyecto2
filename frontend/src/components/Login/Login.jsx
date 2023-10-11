@@ -1,11 +1,11 @@
 import React, { useState, useRef } from "react";
+import Webcam from "react-webcam";
 import styled from "styled-components";
 import { useHistory } from 'react-router'
 
 export default function Login() {
 
     const [tipo, setTipo] = useState(true);
-    const [videoStream, setVideoStream] = useState(null);
 
     const Container = styled.div`
         display: flex;
@@ -20,7 +20,7 @@ export default function Login() {
         border-radius: 30px;
         width: 25%;
         min-width: 300px;
-        height: 45%;
+        height: 55%;
         text-align: center;
         margin: auto;
         display: flex;
@@ -95,13 +95,6 @@ export default function Login() {
         height: 100%; /* Ocupa todo el espacio vertical disponible */
     `;
 
-    const VideoPreview = styled.video`
-        width: 100%;
-        height: auto;
-        border-radius: 10px;
-        margin-bottom: 10px;
-    `;
-
     const handleLogin = () => {
         // Lógica para el inicio de sesión
         // Aquí puedes añadir tu lógica de autenticación
@@ -109,11 +102,6 @@ export default function Login() {
 
     const handleChangeMode = () => {
         setTipo(!tipo);
-        if (tipo) {
-            startCamera();
-        } else {
-            stopCamera();
-        }
     };
 
     const handleRegister = () => {
@@ -121,22 +109,10 @@ export default function Login() {
         // Aquí puedes añadir tu lógica para el registro
     };
 
-    const startCamera = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            setVideoStream(stream);
-            const videoElement = document.getElementById("videoPreview");
-            if (videoElement) videoElement.srcObject = stream;
-        } catch (error) {
-            console.error("Error accessing the camera: ", error);
-        }
-    };
-
-    const stopCamera = () => {
-        if (videoStream) {
-            videoStream.getTracks().forEach(track => track.stop());
-            setVideoStream(null);
-        }
+    const videoConstraints = {
+        width: 1280,
+        height: 720,
+        facingMode: "user"
     };
 
     return (
@@ -150,9 +126,7 @@ export default function Login() {
                             <TextField type="password" placeholder="Contraseña" variant='outlined' />
                         </>
                     ) : (
-                        <>
-                            <VideoPreview id="videoPreview" autoPlay playsInline />
-                        </>
+                        <Webcam audio={false} height={720} screenshotFormat="image/jpeg" width={1280} videoConstraints={videoConstraints}></Webcam>
                     )}
                     <ButtonsContainer>
                         <Button0 onClick={handleLogin}>Login</Button0>

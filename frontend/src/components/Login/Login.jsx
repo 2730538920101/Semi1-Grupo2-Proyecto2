@@ -162,7 +162,7 @@ export default function Login() {
                     <ContentContainer>
                         <WebcamContainer>
                             <WebcamWrapper>
-                                <StyledWebcam audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} />
+                                <StyledWebcam audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true}/>
                             </WebcamWrapper>
                         </WebcamContainer>
                         <ButtonsContainer>

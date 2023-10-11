@@ -3,7 +3,7 @@ import Webcam from "react-webcam";
 import styled from "styled-components";
 import { useHistory } from 'react-router'
 
-export default function Login() {
+export default function Register() {
 
     const [tipo, setTipo] = useState(true);
 
@@ -20,22 +20,15 @@ export default function Login() {
         border-radius: 30px;
         width: 30%;
         min-width: 300px;
+        height: 30%;
         min-height: 300px;
         text-align: center;
         margin: auto;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
+        justify-content: flex-start; /* Centra verticalmente, pero coloca el título en la parte superior */
+        align-items: center; /* Centra horizontalmente */
         border: 1px solid white;
-
-        @media (max-width: 300px) {
-            min-width: 200px; /* Cambia el min-width a 200px cuando la pantalla sea menor o igual a 300px de ancho */
-        }
-    `;
-
-    const BlackBox2 = styled(BlackBox)`
-        min-height: 350px;
     `;
 
     const CommonStyles = `
@@ -43,14 +36,14 @@ export default function Login() {
         border: 1px solid white;
         color: white;
         padding: 10px;
-        border-radius: 10px;
+        border-radius: 10px; /* Agrega esquinas redondeadas */
     `;
 
     const TextField = styled.input`
         width: 100%;
         padding: 10px;
         margin-bottom: 10px;
-        box-sizing: border-box;
+        box-sizing: border-box; /* Asegura que el padding se incluya en el ancho */
         ${CommonStyles}
         
         &:focus::placeholder {
@@ -99,7 +92,7 @@ export default function Login() {
         justify-content: center;
         align-items: center;
         width: 100%;
-        height: 100%;
+        height: 100%; /* Ocupa todo el espacio vertical disponible */
     `;
 
     const WebcamContainer = styled.div`
@@ -121,7 +114,6 @@ export default function Login() {
         width: 100%;
         height: 100%;
     `;
-
 
     const handleLogin = () => {
         // Lógica para el inicio de sesión
@@ -145,36 +137,18 @@ export default function Login() {
 
     return (
         <Container>
-            {tipo ? (
-                <BlackBox>
-                    <Title>Login</Title>
-                    <ContentContainer>
-                        <TextField type="text" placeholder="Usuario" variant='outlined' />
-                        <TextField type="password" placeholder="Contraseña" variant='outlined' />
-                        <ButtonsContainer>
-                            <Button0 onClick={handleLogin}>Login</Button0>
-                            <Button onClick={handleChangeMode}>{tipo ? "Usar reconocimiento facial" : "Usar credenciales"}</Button>
-                        </ButtonsContainer>
-                    </ContentContainer>
-                    <Button1 onClick={handleRegister}>Registrarse</Button1>
-                </BlackBox>
-            ) : (
-                <BlackBox2>
-                    <Title>Login</Title>
-                    <ContentContainer>
-                        <WebcamContainer>
-                            <WebcamWrapper>
-                                <StyledWebcam audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true}/>
-                            </WebcamWrapper>
-                        </WebcamContainer>
-                        <ButtonsContainer>
-                            <Button0 onClick={handleLogin}>Login</Button0>
-                            <Button onClick={handleChangeMode}>{tipo ? "Usar reconocimiento facial" : "Usar credenciales"}</Button>
-                        </ButtonsContainer>
-                    </ContentContainer>
-                    <Button1 onClick={handleRegister}>Registrarse</Button1>
-                </BlackBox2>
-            )}
+            <BlackBox>
+                <Title>Login</Title>
+                <ContentContainer>
+                    <TextField type="text" placeholder="Usuario" variant='outlined' />
+                    <TextField type="password" placeholder="Contraseña" variant='outlined' />
+                    <ButtonsContainer>
+                        <Button0 onClick={handleLogin}>Login</Button0>
+                        <Button onClick={handleChangeMode}>{tipo ? "Usar reconocimiento facial" : "Usar credenciales"}</Button>
+                    </ButtonsContainer>
+                </ContentContainer>
+                <Button1 onClick={handleRegister}>Registrarse</Button1>
+            </BlackBox>
         </Container>
     );
 }

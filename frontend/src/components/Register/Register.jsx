@@ -1,123 +1,145 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Webcam from "react-webcam";
 import styled from "styled-components";
-import { useHistory } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 
-export default function Register() {
+
+const Container = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 10px
+`;
+
+const BlackBox = styled.div`
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 30px;
+    width: 40%;
+    min-width: 300px;
+    min-height: 300px;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border: 1px solid white;
+
+    @media (max-width: 300px) {
+        min-width: 200px; /* Cambia el min-width a 200px cuando la pantalla sea menor o igual a 300px de ancho */
+    }
+`;
+
+const CommonStyles = `
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid white;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+`;
+
+const TextField = styled.input`
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    ${CommonStyles}
+        
+    &:focus::placeholder {
+        color: transparent;
+        transform: translateY(-20px);
+        transition: all 0.3s ease;
+    }
+        
+    &::placeholder {
+        color: white;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        transition: all 0.3s ease;
+    }
+`;
+
+const ButtonsContainer = styled.div`
+    display: flex;
+    width: 100%;
+`;
+
+const Button = styled.button`
+    width: 50%;
+    padding: 10px;
+    margin-bottom: 5px;
+    ${CommonStyles}
+`;
+
+const Button0 = styled(Button)`
+    margin-right: 3px;
+`;
+
+const Button1 = styled(Button)`
+    width: 100%;
+`;
+
+const Title = styled.h2`
+    margin-bottom: 20px;
+    color:white;
+`;
+
+const ContentContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+`;
+
+const WebcamContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const WebcamWrapper = styled.div`
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 15px;
+`;
+
+const StyledWebcam = styled(Webcam)`
+    width: 100%;
+    height: 100%;
+`;
+
+export default function Register({ user, setUser }) {
 
     const [tipo, setTipo] = useState(true);
+    const [newUser, setNewUser] = useState({ 'user': '', 'name': '', 'email': '', 'dpi': '', 'password': '', 'confirm': '' });
+    const [selectedImage, setSelectedImage] = useState(null);
+    const push = useNavigate();
 
-    const Container = styled.div`
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    `;
+    const inputRef = useRef();
+    const webcamRef = useRef(null);
 
-    const BlackBox = styled.div`
-        background-color: rgba(0, 0, 0, 0.4);
-        padding: 20px;
-        border-radius: 30px;
-        width: 30%;
-        min-width: 300px;
-        height: 30%;
-        min-height: 300px;
-        text-align: center;
-        margin: auto;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start; /* Centra verticalmente, pero coloca el título en la parte superior */
-        align-items: center; /* Centra horizontalmente */
-        border: 1px solid white;
-    `;
+    const inputChange = ({ target }) => {
+        const { name, value } = target
+        setNewUser({
+            ...newUser,
+            [name]: value
+        })
+    }
 
-    const CommonStyles = `
-        background-color: rgba(0, 0, 0, 0.3);
-        border: 1px solid white;
-        color: white;
-        padding: 10px;
-        border-radius: 10px; /* Agrega esquinas redondeadas */
-    `;
+    const handleImagen = () => {
+        if (tipo) {
+            inputRef.current.click();
+        } else {
 
-    const TextField = styled.input`
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        box-sizing: border-box; /* Asegura que el padding se incluya en el ancho */
-        ${CommonStyles}
-        
-        &:focus::placeholder {
-            color: transparent;
-            transform: translateY(-20px);
-            transition: all 0.3s ease;
         }
-        
-        &::placeholder {
-            color: white;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            transition: all 0.3s ease;
-        }
-    `;
-
-    const ButtonsContainer = styled.div`
-        display: flex;
-        width: 100%;
-    `;
-
-    const Button = styled.button`
-        width: 50%;
-        padding: 10px;
-        margin-bottom: 5px;
-        ${CommonStyles}
-    `;
-
-    const Button0 = styled(Button)`
-        margin-right: 3px;
-    `;
-
-    const Button1 = styled(Button)`
-        width: 100%;
-    `;
-
-    const Title = styled.h2`
-        margin-bottom: 20px;
-        color:white;
-    `;
-
-    const ContentContainer = styled.div`
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 100%; /* Ocupa todo el espacio vertical disponible */
-    `;
-
-    const WebcamContainer = styled.div`
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    `;
-
-    const WebcamWrapper = styled.div`
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        border-radius: 15px;
-    `;
-
-    const StyledWebcam = styled(Webcam)`
-        width: 100%;
-        height: 100%;
-    `;
-
-    const handleLogin = () => {
-        // Lógica para el inicio de sesión
-        // Aquí puedes añadir tu lógica de autenticación
     };
 
     const handleChangeMode = () => {
@@ -125,9 +147,12 @@ export default function Register() {
     };
 
     const handleRegister = () => {
-        // Lógica para el registro
-        // Aquí puedes añadir tu lógica para el registro
+
     };
+
+    const handleRegresar = () => {
+        push('/');
+    }
 
     const videoConstraints = {
         width: 1280,
@@ -135,19 +160,71 @@ export default function Register() {
         facingMode: "user"
     };
 
+    const capture = useCallback(
+        () => {
+            const imageSrc = webcamRef.current.getScreenshot();
+            console.log(imageSrc);
+        },
+        [webcamRef]
+    );
+
     return (
         <Container>
             <BlackBox>
-                <Title>Login</Title>
+                <Title>Registro</Title>
                 <ContentContainer>
-                    <TextField type="text" placeholder="Usuario" variant='outlined' />
-                    <TextField type="password" placeholder="Contraseña" variant='outlined' />
+                    <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={newUser.user} />
+                    <TextField type="text" name="name" placeholder="Nombre" onChange={inputChange} value={newUser.name} />
+                    <TextField type="email" name="email" placeholder="Correo Electronico" onChange={inputChange} value={newUser.email} />
+                    <TextField type="number" name="dpi" placeholder="DPI" onChange={inputChange} value={newUser.dpi} min="1000000000000" max="9999999999999" />
+                    <TextField type="password" name="password" placeholder="Contraseña" onChange={inputChange} value={newUser.password} />
+                    <TextField type="password" name="confirm" placeholder="Confirmar Contraseña" onChange={inputChange} value={newUser.confirm} />
+                    {
+                        tipo ? (
+                            newUser.imagen ? (
+                                <img src={URL.createObjectURL(newUser.imagen)} alt="Imagen seleccionada" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', marginBottom: '10px' }} />
+                            ) : (
+                                <></>
+                            )
+                        ) : (
+                            <WebcamContainer>
+                                <WebcamWrapper>
+                                    <StyledWebcam ref={webcamRef} audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true} />
+                                </WebcamWrapper>
+                            </WebcamContainer>
+                        )
+                    }
                     <ButtonsContainer>
-                        <Button0 onClick={handleLogin}>Login</Button0>
-                        <Button onClick={handleChangeMode}>{tipo ? "Usar reconocimiento facial" : "Usar credenciales"}</Button>
+                        {tipo ? (
+                            <Button0 onClick={handleImagen}>
+                                Subir imagen
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                    ref={inputRef}
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        setNewUser({
+                                            ...newUser,
+                                            imagen: file
+                                        });
+                                        console.log(file);
+                                    }}
+                                />
+                            </Button0>
+                        ) : (
+                            <Button0 onClick={capture}>
+                                Tomar foto
+                            </Button0>
+                        )}
+                        <Button onClick={handleChangeMode}>{tipo ? "Usar camara" : "Usar imagen del dispositivo"}</Button>
+                    </ButtonsContainer>
+                    <ButtonsContainer>
+                        <Button0 onClick={handleRegresar}>Regresar</Button0>
+                        <Button onClick={handleRegister}>Registrarse</Button>
                     </ButtonsContainer>
                 </ContentContainer>
-                <Button1 onClick={handleRegister}>Registrarse</Button1>
             </BlackBox>
         </Container>
     );

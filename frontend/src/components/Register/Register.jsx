@@ -168,23 +168,19 @@ export default function Register({ user, setUser }) {
         [webcamRef]
     );
 
-    function base64toFile(base64Data) {
-        const byteCharacters = atob(base64Data);
-        const byteArrays = [];
+    function base64toFile(base64String) {
+        const base64Data = base64String.split(',')[1];
 
-        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-            const slice = byteCharacters.slice(offset, offset + 512);
+        // Decodificar la cadena base64
+        const decodedData = atob(base64Data);
 
-            const byteNumbers = new Array(slice.length);
-            for (let i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
-            }
-
-            const byteArray = new Uint8Array(byteNumbers);
-            byteArrays.push(byteArray);
+        // Convertir la cadena decodificada a un arreglo de bytes
+        const byteArray = new Uint8Array(decodedData.length);
+        for (let i = 0; i < decodedData.length; i++) {
+            byteArray[i] = decodedData.charCodeAt(i);
         }
 
-        const blob = new Blob(byteArrays, { type: "image/jpeg" });
+        const blob = new Blob(byteArray, { type: "image/jpeg" });
         const file = new File([blob], "face.jpg", { type: "image/jpeg" });
         return file;
     }

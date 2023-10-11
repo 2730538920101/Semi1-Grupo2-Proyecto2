@@ -163,10 +163,31 @@ export default function Register({ user, setUser }) {
     const capture = useCallback(
         () => {
             const imageSrc = webcamRef.current.getScreenshot();
-            console.log(imageSrc);
+            console.log(base64toFile(imageSrc));
         },
         [webcamRef]
     );
+
+    function base64toFile(base64Data) {
+        const byteCharacters = atob(base64Data);
+        const byteArrays = [];
+
+        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+            const slice = byteCharacters.slice(offset, offset + 512);
+
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+
+        const blob = new Blob(byteArrays, { type: "image/jpeg" });
+        const file = new File([blob], "face.jpg", { type: "image/jpeg" });
+        return file;
+    }
 
     return (
         <Container>

@@ -162,10 +162,34 @@ export default function Register({ user, setUser }) {
 
     const capture = () => {
         const imageSrc = webcamRef.current.getScreenshot();
+        const file = base64toFile(imageSrc, 'capturedImage.jpg', 'image/jpeg');
         setNewUser({
             ...newUser,
-            imagen: imageSrc
+            imagen: imageSrc,
+            imagenfile: file
         });
+        setTipo(true);
+    }
+
+    function base64toFile(base64String, fileName, mimeType) {
+        const byteCharacters = atob(base64String);
+        const byteArrays = [];
+
+        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+            const slice = byteCharacters.slice(offset, offset + 512);
+
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+
+        const blob = new Blob(byteArrays, { type: mimeType });
+        const file = new File([blob], fileName, { type: mimeType });
+        return file;
     }
 
     return (
@@ -207,9 +231,9 @@ export default function Register({ user, setUser }) {
                                         const file = e.target.files[0];
                                         setNewUser({
                                             ...newUser,
-                                            imagen: URL.createObjectURL(file)
+                                            imagen: URL.createObjectURL(file),
+                                            imagenfile: file
                                         });
-                                        console.log(file);
                                     }}
                                 />
                             </Button0>

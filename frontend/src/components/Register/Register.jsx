@@ -160,29 +160,12 @@ export default function Register({ user, setUser }) {
         facingMode: "user"
     };
 
-    const capture = useCallback(
-        () => {
-            const imageSrc = webcamRef.current.getScreenshot();
-            console.log(base64toFile(imageSrc));
-        },
-        [webcamRef]
-    );
-
-    function base64toFile(base64String) {
-        const base64Data = base64String.split(',')[1];
-
-        // Decodificar la cadena base64
-        const decodedData = atob(base64Data);
-
-        // Convertir la cadena decodificada a un arreglo de bytes
-        const byteArray = new Uint8Array(decodedData.length);
-        for (let i = 0; i < decodedData.length; i++) {
-            byteArray[i] = decodedData.charCodeAt(i);
-        }
-
-        const blob = new Blob(byteArray, { type: "image/jpeg" });
-        const file = new File([blob], "face.jpg", { type: "image/jpeg" });
-        return file;
+    const capture = () => {
+        const imageSrc = webcamRef.current.getScreenshot();
+        setNewUser({
+            ...newUser,
+            imagen: imageSrc
+        });
     }
 
     return (
@@ -199,7 +182,7 @@ export default function Register({ user, setUser }) {
                     {
                         tipo ? (
                             newUser.imagen ? (
-                                <img src={URL.createObjectURL(newUser.imagen)} alt="Imagen seleccionada" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', marginBottom: '10px' }} />
+                                <img src={newUser.imagen} alt="Imagen seleccionada" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', marginBottom: '10px' }} />
                             ) : (
                                 <></>
                             )
@@ -224,7 +207,7 @@ export default function Register({ user, setUser }) {
                                         const file = e.target.files[0];
                                         setNewUser({
                                             ...newUser,
-                                            imagen: file
+                                            imagen: URL.createObjectURL(file)
                                         });
                                         console.log(file);
                                     }}

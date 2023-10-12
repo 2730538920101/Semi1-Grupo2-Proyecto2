@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import Webcam from "react-webcam";
 import styled from "styled-components";
 import { useNavigate } from 'react-router-dom'
@@ -78,10 +78,6 @@ const Button0 = styled(Button)`
     margin-right: 3px;
 `;
 
-const Button1 = styled(Button)`
-    width: 100%;
-`;
-
 const Title = styled.h2`
     margin-bottom: 20px;
     color:white;
@@ -120,7 +116,6 @@ export default function Register({ user, setUser }) {
 
     const [tipo, setTipo] = useState(true);
     const [newUser, setNewUser] = useState({ 'user': '', 'name': '', 'email': '', 'dpi': '', 'password': '', 'confirm': '' });
-    const [selectedImage, setSelectedImage] = useState(null);
     const push = useNavigate();
 
     const inputRef = useRef();
@@ -135,11 +130,7 @@ export default function Register({ user, setUser }) {
     }
 
     const handleImagen = () => {
-        if (tipo) {
-            inputRef.current.click();
-        } else {
-
-        }
+        inputRef.current.click();
     };
 
     const handleChangeMode = () => {
@@ -171,24 +162,15 @@ export default function Register({ user, setUser }) {
         setTipo(true);
     }
 
-    function base64toFile(base64String, fileName, mimeType) {
-        const byteCharacters = atob(base64String);
-        const byteArrays = [];
-
-        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-            const slice = byteCharacters.slice(offset, offset + 512);
-
-            const byteNumbers = new Array(slice.length);
-            for (let i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
-            }
-
-            const byteArray = new Uint8Array(byteNumbers);
-            byteArrays.push(byteArray);
+    function base64toFile(base64String, filename, mimeType) {
+        const base64Data = base64String.split(',')[1];
+        const decodedData = atob(base64Data);
+        const byteArray = new Uint8Array(decodedData.length);
+        for (let i = 0; i < decodedData.length; i++) {
+            byteArray[i] = decodedData.charCodeAt(i);
         }
-
-        const blob = new Blob(byteArrays, { type: mimeType });
-        const file = new File([blob], fileName, { type: mimeType });
+        const blob = new Blob([byteArray], { type: mimeType });
+        const file = new File([blob], filename, { type: mimeType });
         return file;
     }
 

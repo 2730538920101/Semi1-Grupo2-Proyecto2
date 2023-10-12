@@ -124,6 +124,7 @@ export default function Login({ user, setUser }) {
 
     const [tipo, setTipo] = useState(true);
     const push = useNavigate();
+    const webcamRef = useRef(null);
 
     const inputChange = ({ target }) => {
         const { name, value } = target
@@ -152,6 +153,28 @@ export default function Login({ user, setUser }) {
         facingMode: "user"
     };
 
+    const capture = () => {
+        const imageSrc = webcamRef.current.getScreenshot();
+        const file = base64toFile(imageSrc, 'capturedImage.jpg', 'image/jpeg');
+        setUser({
+            ...user,
+            imagen: imageSrc,
+            imagenfile: file
+        });
+    }
+
+    function base64toFile(base64String, filename, mimeType) {
+        const base64Data = base64String.split(',')[1];
+        const decodedData = atob(base64Data);
+        const byteArray = new Uint8Array(decodedData.length);
+        for (let i = 0; i < decodedData.length; i++) {
+            byteArray[i] = decodedData.charCodeAt(i);
+        }
+        const blob = new Blob([byteArray], { type: mimeType });
+        const file = new File([blob], filename, { type: mimeType });
+        return file;
+    }
+
     const LoginContent = ({ inputChange, handleLogin, handleChangeMode, user }) => (
         <ContentContainer>
             <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={user.user} />
@@ -171,7 +194,7 @@ export default function Login({ user, setUser }) {
                 </WebcamWrapper>
             </WebcamContainer>
             <ButtonsContainer>
-                <Button0 onClick={handleLogin}>Login <LuLogIn /></Button0>
+                <Button0 onClick={capture}>Login <LuLogIn /></Button0>
                 <Button onClick={handleChangeMode}>Usar credenciales <GoKey /></Button>
             </ButtonsContainer>
         </ContentContainer>

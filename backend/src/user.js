@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const aws = require('./controller_aws');
+const bucket = require('./bucket_controller');
+const cognito = require('./cognito_controller');
 const util = require('./util');
 const conn = require('./conexion');
 
 /** Creacion de un usuario */
-router.post('/register', aws.upload.single('PICTURE'), async (req, res) => {
+router.post('/register', bucket.upload.single('PICTURE'), async (req, res) => {
     try {
         // Se obtiene los parametros que posee esta entidad
         const parametro = req.body;
@@ -14,19 +15,36 @@ router.post('/register', aws.upload.single('PICTURE'), async (req, res) => {
         const hashedPassword = await util.hashPassword(parametro.APP_PASSWORD);
 
         // Subida de la foto
-        aws.uploadFiletoS3(req.file, process.env.AWS_BUCKET_FOLDER_PROFILE, (err, data) => {
+        bucket.uploadFiletoS3(req.file, process.env.AWS_BUCKET_FOLDER_PROFILE, (err, data) => {
             if (err) {
                 console.error('Error al subir el archivo de S3:', err);
                 res.json({ success: false, result: "Ha ocurrido un error al subir el archivo" });
             } else {
                 const url_archivo = data;
                 const query = 'INSERT INTO APP_USER (FULL_NAME, EMAIL, DPI, APP_PASSWORD, PICTURE, USER_STATUS) VALUES (?, ?, ?, ?, ?, ?)';
-                conn.query(query, [parametro.FULL_NAME, parametro.EMAIL, parametro.DPI, hashedPassword, url_archivo, "ACTIVO"], (err, result) => {
+                conn.query(query, [parametro.FULL_NAME, parametro.EMAIL, parametro.DPI, hashedPassword, url_archivo, "INACTIVO"], (err, result) => {
                     if (err) {
                         console.error('Error al insertar el usuario:', err);
                         res.json({ success: false, result: "Ha ocurrido un error al insertar el usuario" });
                     } else {
-                        res.json({ success: true, result: "Usuario creado correctamente" });
+
+                        // Registro en cognito
+                        const email = parametro.EMAIL;
+                        const password = hashedPassword;
+
+                        // Lista de todos los atributos a ser enviados en cognito
+                        const attributeList = cognito.listAtrributes('name', parametro.FULL_NAME, 'email', email, 'custom:dpi', parametro.DPI);
+
+                        // Realizando registro de usuario en cognito
+                        cognito.userPool.signUp(email, password, attributeList, null, (err, result) => {
+                            if (err) {
+                                console.error('Error al registrar usuario en Cognito:', err);
+                                res.json({ success: false, result: "Ha ocurrido un error al registrar el usuario" });
+                            } else {
+                                console.log('Usuario registrado en Cognito:', result);
+                                res.json({ success: true, result: "Usuario creado correctamente" });
+                            }
+                        });
                     }
                 });
             }
@@ -38,7 +56,7 @@ router.post('/register', aws.upload.single('PICTURE'), async (req, res) => {
 });
 
 /** Verificacion del usuario */
-router.post('/login', aws.upload.single('PICTURE'), async (req, res) => {
+router.post('/login', bucket.upload.single('PICTURE'), async (req, res) => {
 
     // Se obtienen los parametros necesarios
     const correo = req.body.EMAIL;
@@ -71,26 +89,6 @@ router.post('/login', aws.upload.single('PICTURE'), async (req, res) => {
             }
         }
     });
-
-    // try {
-    //     conn.query(query, [parametro.FULL_NAME, parametro.EMAIL, parametro.DPI, hashedPassword, url_archivo, "ACTIVO"], (err, result) => {
-    //         if (err) {
-    //             console.error('Error al insertar el usuario:', err);
-    //             res.json({ success: false, result: "Ha ocurrido un error al insertar el usuario" });
-    //         } else {
-    //             res.json({ success: true, result: "Usuario creado correctamente" });
-    //         }
-    //     });
-    //     // const result = await conn.query(query, [correo]);
-
-    //     // if (result.length <= 0) {
-    //     //     res.json({ success: false, mensaje: "Credenciales incorrectas" });
-    //     // } else {
-    //     //
-    //     // }
-    // } catch (error) {
-
-    // }
 });
 
 module.exports = router;

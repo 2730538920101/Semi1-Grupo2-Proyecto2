@@ -32,4 +32,4 @@ function listAtrributes() {
     return response;
 }
 
-module.exports = { userPool, listAtrributes };
+module.exports = { userPool, AmazonCognitoIdentity, listAtrributes };

@@ -30,7 +30,7 @@ router.post('/register', bucket.upload.single('PICTURE'), async (req, res) => {
 
                         // Registro en cognito
                         const email = parametro.EMAIL;
-                        const password = hashedPassword;
+                        const password = parametro.APP_PASSWORD;
 
                         // Lista de todos los atributos a ser enviados en cognito
                         const attributeList = cognito.listAtrributes('name', parametro.FULL_NAME, 'email', email, 'custom:dpi', parametro.DPI);
@@ -41,7 +41,6 @@ router.post('/register', bucket.upload.single('PICTURE'), async (req, res) => {
                                 console.error('Error al registrar usuario en Cognito:', err);
                                 res.json({ success: false, result: "Ha ocurrido un error al registrar el usuario" });
                             } else {
-                                console.log('Usuario registrado en Cognito:', result);
                                 res.json({ success: true, result: "Usuario creado correctamente" });
                             }
                         });
@@ -62,31 +61,27 @@ router.post('/login', bucket.upload.single('PICTURE'), async (req, res) => {
     const correo = req.body.EMAIL;
     const contrasenia = req.body.APP_PASSWORD;
 
-    const query = 'SELECT ID_USER, APP_PASSWORD FROM APP_USER WHERE EMAIL = ?';
+    const authenticationData = {
+        Username: correo,
+        Password: contrasenia
+    };
 
-    // Se ejecuta el query y se realiza la comparacion de contrasenia para verificar que el inicio de sesion sea correcto
-    conn.query(query, [correo], async (err, result) => {
+    const authenticationDetails = new cognito.AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
 
-        if (err) {
-            console.error('Error al obtener usuario:', err);
-            res.json({ success: false, mensaje: "Ha ocurrido un error al obtener el usuario" });
-        } else {
+    const userData = {
+        Username: correo,
+        Pool: cognito.userPool
+    };
 
-            if (result.length <= 0) {
-                res.json({ success: false, mensaje: "Credenciales incorrectas" });
-            } else {
-                try {
-                    const esCorrecta = await util.comparePassword(contrasenia, result[0].APP_PASSWORD);
-                    if (esCorrecta) {
-                        res.json({ success: true, mensaje: "Bienvenido" });
-                    } else {
-                        res.json({ success: false, mensaje: "Credenciales incorrectas" });
-                    }
-                } catch (error) {
-                    console.error('Error al obtener o comparar la contraseña:', error);
-                    res.json({ success: false, mensaje: "Ha ocurrido un error al obtener o comparar la contraseña" });
-                }
-            }
+    const cognitoUser = new cognito.AmazonCognitoIdentity.CognitoUser(userData);
+
+    cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: (session) => {
+            res.json({ success: true, mensaje: "Bienvenido", session: session });
+        },
+        onFailure: (err) => {
+            console.error('Error al autenticar usuario:', err);
+            res.json({ success: false, mensaje: "Credenciales incorrectas" });
         }
     });
 });

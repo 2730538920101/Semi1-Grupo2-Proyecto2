@@ -146,7 +146,7 @@ export default function Register({ user, setUser }) {
     }
 
     const videoConstraints = {
-        width: 1280,
+        width: 720,
         height: 720,
         facingMode: "user"
     };

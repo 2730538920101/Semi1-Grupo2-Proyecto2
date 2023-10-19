@@ -135,8 +135,7 @@ export default function Login({ user, setUser }) {
     }
 
     const handleLogin = () => {
-        // Lógica para el inicio de sesión
-        // Aquí puedes añadir tu lógica de autenticación
+        push('/Home')
     };
 
     const handleChangeMode = () => {
@@ -148,7 +147,7 @@ export default function Login({ user, setUser }) {
     };
 
     const videoConstraints = {
-        width: 1280,
+        width: 720,
         height: 720,
         facingMode: "user"
     };
@@ -161,6 +160,7 @@ export default function Login({ user, setUser }) {
             imagen: imageSrc,
             imagenfile: file
         });
+        handleLogin();
     }
 
     function base64toFile(base64String, filename, mimeType) {
@@ -188,6 +188,7 @@ export default function Login({ user, setUser }) {
     
     const RegisterContent = ({ handleChangeMode }) => (
         <ContentContainer>
+            <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={user.user} />
             <WebcamContainer>
                 <WebcamWrapper>
                     <StyledWebcam audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true} />

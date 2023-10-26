@@ -123,8 +123,8 @@ const StyledWebcam = styled(Webcam)`
 export default function Login({ user, setUser }) {
 
     const [tipo, setTipo] = useState(true);
-    const push = useNavigate();
     const webcamRef = useRef(null);
+    const push = useNavigate();
 
     const inputChange = ({ target }) => {
         const { name, value } = target
@@ -175,44 +175,36 @@ export default function Login({ user, setUser }) {
         return file;
     }
 
-    const LoginContent = ({ inputChange, handleLogin, handleChangeMode, user }) => (
-        <ContentContainer>
-            <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={user.user} />
-            <TextField type="password" name="password" placeholder="Contraseña" onChange={inputChange} value={user.password} />
-            <ButtonsContainer>
-                <Button0 onClick={handleLogin}>Login <LuLogIn /></Button0>
-                <Button onClick={handleChangeMode}>Usar reconocimiento facial <AiOutlineCamera /></Button>
-            </ButtonsContainer>
-        </ContentContainer>
-    );
-    
-    const RegisterContent = ({ handleChangeMode }) => (
-        <ContentContainer>
-            <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={user.user} />
-            <WebcamContainer>
-                <WebcamWrapper>
-                    <StyledWebcam audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true} />
-                </WebcamWrapper>
-            </WebcamContainer>
-            <ButtonsContainer>
-                <Button0 onClick={capture}>Login <LuLogIn /></Button0>
-                <Button onClick={handleChangeMode}>Usar credenciales <GoKey /></Button>
-            </ButtonsContainer>
-        </ContentContainer>
-    );
-
     return (
         <Container>
             {tipo ? (
                 <BlackBox>
                     <Title>Login</Title>
-                    <LoginContent inputChange={inputChange} handleLogin={handleLogin} handleChangeMode={handleChangeMode} user={user} />
+                    <ContentContainer>
+                        <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={user.user} />
+                        <TextField type="password" name="password" placeholder="Contraseña" onChange={inputChange} value={user.password} />
+                        <ButtonsContainer>
+                            <Button0 onClick={handleLogin}>Login <LuLogIn /></Button0>
+                            <Button onClick={handleChangeMode}>Usar reconocimiento facial <AiOutlineCamera /></Button>
+                        </ButtonsContainer>
+                    </ContentContainer>
                     <Button1 onClick={handleRegister}>Registrarse<AiOutlineUserAdd /></Button1>
                 </BlackBox>
             ) : (
                 <BlackBox2>
                     <Title>Login</Title>
-                    <RegisterContent handleChangeMode={handleChangeMode} />
+                    <ContentContainer>
+                        <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={user.user} />
+                        <WebcamContainer>
+                            <WebcamWrapper>
+                                <StyledWebcam audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true} />
+                            </WebcamWrapper>
+                        </WebcamContainer>
+                        <ButtonsContainer>
+                            <Button0 onClick={capture}>Login <LuLogIn /></Button0>
+                            <Button onClick={handleChangeMode}>Usar credenciales <GoKey /></Button>
+                        </ButtonsContainer>
+                    </ContentContainer>
                     <Button1 onClick={handleRegister}>Registrarse<AiOutlineUserAdd /></Button1>
                 </BlackBox2>
             )}

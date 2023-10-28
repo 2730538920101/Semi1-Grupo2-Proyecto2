@@ -185,6 +185,16 @@ const ListItem = styled.div`
     align-items: center;
     border-bottom: 1px solid white;
     padding: 5px;
+    cursor: pointer;
+`;
+
+const ListItem2 = styled.div`
+    height: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    cursor: pointer;
 `;
 
 const ItemImage = styled.img`
@@ -350,6 +360,7 @@ const CommentText = styled.div`
   align-self: flex-start;
   padding-right: 10px; /* Agregado espacio entre CommentText y CommentMeta */
   white-space: pre-line;
+  word-wrap: break-word;
 `;
 
 const CommentMeta = styled.div`
@@ -364,12 +375,27 @@ const PostDate = styled.div`
     margin-right: 10px;
 `;
 
+const PostData = styled.div`
+    display: flex;
+    flex-direction: row;
+    border-top: 1px solid white;
+    margin-top: 5px;
+`;
+
+const PostTags = styled.div`
+    flex: 0 0 50%;
+    width: 100%;
+    white-space: pre-line;
+    word-wrap: break-word;
+`;
+
 const PostMeta = styled.div`
-  /* Cambios en estilos para orientar a la derecha */
-  display: flex;
-  align-self: flex-end;
-  align-items: center;
-  white-space: pre-line;
+    /* Cambios en estilos para orientar a la derecha */
+    display: flex;
+    flex: 1;
+    align-self: flex-end;
+    align-items: center;
+    white-space: pre-line;
 `;
 
 const TranslateIcon = styled(BsTranslate)`
@@ -397,36 +423,37 @@ export default function Home({ user, setUser }) {
         { name: "Item 12", image: "images/Cuadrada.png" },
     ]);
     const [listConectar, setListConectar] = useState([
-        { name: "Item 13", image: "images/Cuadrada.png" },
-        { name: "Item 14", image: "images/Cuadrada.png" },
-        { name: "Item 15", image: "images/Cuadrada.png" },
-        { name: "Item 16", image: "images/Cuadrada.png" },
-        { name: "Item 17", image: "images/Cuadrada.png" },
-        { name: "Item 18", image: "images/Cuadrada.png" },
-        { name: "Item 19", image: "images/Cuadrada.png" },
-        { name: "Item 20", image: "images/Cuadrada.png" },
-        { name: "Item 21", image: "images/Cuadrada.png" },
-        { name: "Item 22", image: "images/Cuadrada.png" },
-        { name: "Item 23", image: "images/Cuadrada.png" },
-        { name: "Item 24", image: "images/Cuadrada.png" },
+        { name: "Item 13", image: "images/Cuadrada.png", state: "Enviada" },
+        { name: "Item 14", image: "images/Cuadrada.png", state: "Esperando" },
+        { name: "Item 15", image: "images/Cuadrada.png", state: "Enviar" },
+        { name: "Item 16", image: "images/Cuadrada.png", state: "Enviada" },
+        { name: "Item 17", image: "images/Cuadrada.png", state: "Esperando" },
+        { name: "Item 18", image: "images/Cuadrada.png", state: "Enviar" },
+        { name: "Item 19", image: "images/Cuadrada.png", state: "Enviada" },
+        { name: "Item 20", image: "images/Cuadrada.png", state: "Esperando" },
+        { name: "Item 21", image: "images/Cuadrada.png", state: "Enviar" },
+        { name: "Item 22", image: "images/Cuadrada.png", state: "Enviada" },
+        { name: "Item 23", image: "images/Cuadrada.png", state: "Esperando" },
+        { name: "Item 24", image: "images/Cuadrada.png", state: "Enviar" },
     ]);
     const [posts, setPost] = useState([
-        { time: "10/10/25", user: "Usuario 1", description: "Contenido de la publicación 1................................................................................................................................................................................\n\n\n\n\n\n\n\n\n\n\n\n\n\ns", image: "images/SemiSocial.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", comment: "Este es un coment" }] },
-        { time: "10/10/25", user: "Usuario 2", description: "", image: "images/SemiSocial.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", comment: "Este es un coment" }, { time: "10/10/25", user: "User6", comment: "Este es un coment" }, { time: "10/10/25", user: "User7", comment: "Este es un coment" }] },
-        { time: "10/10/25", user: "Usuario 3", description: "Contenido de la publicación 3...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 4", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 5", description: "Contenido de la publicación 5...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 6", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 7", description: "Contenido de la publicación 7...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 8", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 9", description: "Contenido de la publicación 9...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 10", description: "Contenido de la publicación 10...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 11", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 12", description: "Contenido de la publicación 12...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 13", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 14", description: "Contenido de la publicación 14...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
-        { time: "10/10/25", user: "Usuario 15", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }] },
+        { time: "10/10/25", user: "Usuario 1", description: "Contenido de la publicación 1.", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", comment: "Este es un coment" }], tags: ["g", "h", "i"] },
+        { time: "10/10/25", user: "Usuario 2", description: "", image: "images/SemiSocial.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", comment: "Este es un coment" }, { time: "10/10/25", user: "User6", comment: "Este es un coment" }, { time: "10/10/25", user: "User7", comment: "Este es un coment" }], tags: ["f", "g", "h"] },
+        { time: "10/10/25", user: "Usuario 3", description: "Contenido de la publicación 3...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["e", "f", "g"] },
+        { time: "10/10/25", user: "Usuario 4", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["c", "e", "f"] },
+        { time: "10/10/25", user: "Usuario 5", description: "Contenido de la publicación 5...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["b", "c", "e"] },
+        { time: "10/10/25", user: "Usuario 6", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["a", "b", "c"] },
+        { time: "10/10/25", user: "Usuario 7", description: "Contenido de la publicación 7...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["j", "a", "b"] },
+        { time: "10/10/25", user: "Usuario 8", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["i", "j", "a"] },
+        { time: "10/10/25", user: "Usuario 9", description: "Contenido de la publicación 9...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["h", "i", "j"] },
+        { time: "10/10/25", user: "Usuario 10", description: "Contenido de la publicación 10...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["g", "h", "i"] },
+        { time: "10/10/25", user: "Usuario 11", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["f", "g", "h"] },
+        { time: "10/10/25", user: "Usuario 12", description: "Contenido de la publicación 12...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["e", "f", "g"] },
+        { time: "10/10/25", user: "Usuario 13", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["c", "e", "f"] },
+        { time: "10/10/25", user: "Usuario 14", description: "Contenido de la publicación 14...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["b", "c", "e"] },
+        { time: "10/10/25", user: "Usuario 15", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["a", "b", "c"] },
     ]);
+    const [filteredPosts, setFilteredPosts] = useState(posts);
     const [listEtiquetas, setListEtiquetas] = useState(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])
 
     const messageContainerRef = useRef(null);
@@ -438,6 +465,15 @@ export default function Home({ user, setUser }) {
 
     const handleChange = (selected) => {
         setSelectedOptions(selected);
+        const selectedTags = selected.map((option) => option.label);
+        if (selectedTags.length === 0) {
+            setFilteredPosts(posts)
+        } else {
+            const filtered = posts.filter((post) =>
+                post.tags.some((tag) => selectedTags.includes(tag))
+            );
+            setFilteredPosts(filtered);
+        }
     };
 
     const handleTabClick = (tab) => {
@@ -525,22 +561,27 @@ export default function Home({ user, setUser }) {
                             <MainContainer>
                                 <LeftContainer>
                                     {/* Renderiza la lista de publicaciones */}
-                                    {posts.map((post, index) => (
+                                    {filteredPosts.map((post, index) => (
                                         <Post key={index}>
                                             <LeftPost>
                                                 <Username>{post.user}</Username>
                                                 <LeftImage src={post.image} alt="Imagen izquierda" id={`leftImage-${index}`} onLoad={() => handleImageLoad(index)} />
                                             </LeftPost>
                                             <RightPost id={`rightPost-${index}`}>
-                                                {post.description !== "" ? (
-                                                    <RightTop>
-                                                        {post.description}
+                                                <RightTop>
+                                                    {post.description !== "" ? post.description : "Sin descripción."}
+                                                    <PostData>
+                                                        <PostTags>
+                                                            {post.tags.map((tag, index) => (
+                                                                <span key={index}>{"#" + tag + "\n"}</span>
+                                                            ))}
+                                                        </PostTags>
                                                         <PostMeta style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                                             <PostDate>Fecha: {post.time}</PostDate>
-                                                            <TranslateIcon/>
+                                                            <TranslateIcon />
                                                         </PostMeta>
-                                                    </RightTop>
-                                                ) : null}
+                                                    </PostData>
+                                                </RightTop>
                                                 <RightBottom>
                                                     {post.comments.map((comment, index) => (
                                                         <CommentContainer key={index}>
@@ -548,7 +589,8 @@ export default function Home({ user, setUser }) {
                                                                 {comment.user}: {comment.comment}
                                                             </CommentText>
                                                             <CommentMeta>
-                                                                Fecha: {comment.time}
+                                                                <PostDate>Fecha: {comment.time}</PostDate>
+                                                                <TranslateIcon />
                                                             </CommentMeta>
                                                         </CommentContainer>
                                                     ))}
@@ -608,10 +650,12 @@ export default function Home({ user, setUser }) {
                                                 {listConectar.map((item, index) => {
                                                     if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
                                                         return (
-                                                            <ListItem key={index}>
-                                                                <ItemImage src={item.image} alt={item.name} />
-                                                                <ItemName>{item.name}</ItemName>
-                                                            </ListItem>
+                                                            <>
+                                                                <ListItem2 key={index}>
+                                                                    <ItemImage src={item.image} alt={item.name} />
+                                                                    <ItemName>{item.name}</ItemName>
+                                                                </ListItem2>
+                                                            </>
                                                         );
                                                     }
                                                     return null;

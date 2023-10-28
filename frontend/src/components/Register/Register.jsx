@@ -115,7 +115,7 @@ const StyledWebcam = styled(Webcam)`
 export default function Register({ user, setUser }) {
 
     const [tipo, setTipo] = useState(true);
-    const [newUser, setNewUser] = useState({ 'user': '', 'name': '', 'email': '', 'dpi': '', 'password': '', 'confirm': '' });
+    const [newUser, setNewUser] = useState({'name': '', 'email': '', 'dpi': '', 'password': '', 'confirm': '' });
     const push = useNavigate();
 
     const inputRef = useRef();
@@ -179,9 +179,8 @@ export default function Register({ user, setUser }) {
             <BlackBox>
                 <Title>Registro</Title>
                 <ContentContainer>
-                    <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={newUser.user} />
-                    <TextField type="text" name="name" placeholder="Nombre" onChange={inputChange} value={newUser.name} />
                     <TextField type="email" name="email" placeholder="Correo Electronico" onChange={inputChange} value={newUser.email} />
+                    <TextField type="text" name="name" placeholder="Nombre" onChange={inputChange} value={newUser.name} />
                     <TextField type="number" name="dpi" placeholder="DPI" onChange={inputChange} value={newUser.dpi} min="1000000000000" max="9999999999999" />
                     <TextField type="password" name="password" placeholder="Contraseña" onChange={inputChange} value={newUser.password} />
                     <TextField type="password" name="confirm" placeholder="Confirmar Contraseña" onChange={inputChange} value={newUser.confirm} />

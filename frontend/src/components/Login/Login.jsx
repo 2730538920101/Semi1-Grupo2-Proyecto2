@@ -181,7 +181,7 @@ export default function Login({ user, setUser }) {
                 <BlackBox>
                     <Title>Login</Title>
                     <ContentContainer>
-                        <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={user.user} />
+                        <TextField type="text" name="email" placeholder="Correo" onChange={inputChange} value={user.email} />
                         <TextField type="password" name="password" placeholder="Contraseña" onChange={inputChange} value={user.password} />
                         <ButtonsContainer>
                             <Button0 onClick={handleLogin}>Login <LuLogIn /></Button0>
@@ -194,7 +194,7 @@ export default function Login({ user, setUser }) {
                 <BlackBox2>
                     <Title>Login</Title>
                     <ContentContainer>
-                        <TextField type="text" name="user" placeholder="Usuario" onChange={inputChange} value={user.user} />
+                        <TextField type="text" name="email" placeholder="Correo" onChange={inputChange} value={user.email} />
                         <WebcamContainer>
                             <WebcamWrapper>
                                 <StyledWebcam audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true} />

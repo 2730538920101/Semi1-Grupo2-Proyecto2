@@ -10,7 +10,7 @@ const Container = styled.div`
 
 function App() {
 
-  const [user, setUser] = useState({'user':'', 'password':''})
+  const [user, setUser] = useState({'email':'', 'password':''})
 
   return (
     <Container>

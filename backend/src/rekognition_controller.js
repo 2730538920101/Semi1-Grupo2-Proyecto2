@@ -23,7 +23,7 @@ const compareImages = async (sourceImage, targetImageBuffer, similarity = 90) =>
         return faceMatches.length > 0;
     } catch (error) {
         console.error('Error al comparar caras:', error);
-        throw error;
+        return false;
     }
 };
 

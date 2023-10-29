@@ -99,7 +99,7 @@ router.post('/login', bucket.upload.single('PICTURE'), async (req, res) => {
                                 console.error('Error al iniciar sesion del usuario:', err);
                                 res.json({ success: false, result: "Ha ocurrido un error al iniciar sesion del usuario" });
                             } else {
-                                res.json({ success: true, mensaje: "Bienvenido", session: result });
+                                res.json({ success: true, result: "Bienvenido", session: result });
                             }
                         });
                     }
@@ -107,7 +107,7 @@ router.post('/login', bucket.upload.single('PICTURE'), async (req, res) => {
             },
             onFailure: (err) => {
                 console.error('Error al autenticar usuario:', err);
-                res.json({ success: false, mensaje: "Credenciales incorrectas" });
+                res.json({ success: false, result: "Credenciales incorrectas" });
             }
         });
     }
@@ -124,9 +124,9 @@ router.post('/login', bucket.upload.single('PICTURE'), async (req, res) => {
                     if (result.length > 0) {
                         const isMatch = await rekognition.compareImages(result[0].PICTURE, req.file.buffer);
                         if (isMatch) {
-                            res.json({ success: true, mensaje: "Bienvenido", session: result });
+                            res.json({ success: true, result: "Bienvenido", session: result });
                         } else {
-                            res.json({ success: false, mensaje: "Credenciales incorrectas" });
+                            res.json({ success: false, result: "Credenciales incorrectas" });
                         }
                     } else {
                         res.json({ success: false, result: "Credenciales incorrectas" });

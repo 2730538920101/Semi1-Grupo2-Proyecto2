@@ -2,10 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import Media from "react-media";
 import Select from "react-select";
+import { useNavigate } from 'react-router-dom'
 import { IoMdContacts } from "react-icons/io";
-import { BiMessageDetail } from "react-icons/bi";
+import { BiMessageDetail, BiLogOut } from "react-icons/bi";
 import { RiUserSearchFill } from "react-icons/ri";
-import { BsTranslate } from "react-icons/bs";
+import { BsTranslate, BsFillPersonPlusFill, BsSendCheckFill } from "react-icons/bs";
+import { MdOutlineCheckCircle, MdOutlineCancel } from "react-icons/md"
+import { AiFillEdit } from "react-icons/ai";
 
 const Container = styled.div`
     display: flex;
@@ -43,6 +46,7 @@ const MenuContainer = styled.div`
     max-height: 10%;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.2);
+    position: relative;
 `;
 
 const MenuLeft = styled.div`
@@ -61,8 +65,31 @@ const MenuRight = styled.div`
     background-color: rgba(0, 0, 0, 0.15);
     align-items: center;
     justify-content: space-between;
-    overflow: hidden;
     cursor: pointer;
+    position: relative; /* Asegura que el menú absoluto se posicione aquí */
+`;
+
+const DropdownMenu = styled.div`
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: rgba(0, 0, 0, 1);
+    border: 1px solid white;
+    border-radius: 4px;
+    display: block; /* Mostrar u ocultar el menú según isOpen */
+    width: 23%;
+    z-index: 2; /* Asegura que el menú esté por encima de otros elementos */
+`;
+
+const DropdownOption = styled.div`
+    padding: 10px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 `;
 
 const Image = styled.img`
@@ -184,17 +211,11 @@ const ListItem = styled.div`
     display: flex;
     align-items: center;
     border-bottom: 1px solid white;
+    border-left: 1px solid white;
+    border-right: 1px solid white;
     padding: 5px;
     cursor: pointer;
-`;
-
-const ListItem2 = styled.div`
-    height: 100%;
-    max-height: 100%;
-    display: flex;
-    align-items: center;
-    padding: 5px;
-    cursor: pointer;
+    justify-content: space-between; /* Alinea los elementos horizontalmente */
 `;
 
 const ItemImage = styled.img`
@@ -211,6 +232,38 @@ const ItemName = styled.p`
     word-break: break-all;
     color: white;
     overflow: hidden;
+    text-align: center;
+`;
+
+const ContactState = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Alinea los elementos en su respectiva mitad */
+    height: 65px;
+    width: 65px;
+    color: white;
+    padding: 2px;
+    border-left: 1px solid white;
+`;
+
+const Button = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: white;
+    text-align: center;
+    width: 100%;
+    height: 100%; /* Cada botón ocupará el 50% de la altura */
+`;
+
+const ButonText = styled(Button)`
+    font-size: 0.8rem;
+    text-align: center;
+    cursor: default;
 `;
 
 const ChatContainer = styled.div`
@@ -403,6 +456,7 @@ const TranslateIcon = styled(BsTranslate)`
 `;
 
 export default function Home({ user, setUser }) {
+    const push = useNavigate();
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [activeTab, setActiveTab] = useState("Tab1");
     const [searchText, setSearchText] = useState("");
@@ -455,6 +509,7 @@ export default function Home({ user, setUser }) {
     ]);
     const [filteredPosts, setFilteredPosts] = useState(posts);
     const [listEtiquetas, setListEtiquetas] = useState(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const messageContainerRef = useRef(null);
 
@@ -487,14 +542,14 @@ export default function Home({ user, setUser }) {
         }
     };
 
-    useEffect(() => {
-        if (activeTab === "Tab2") {
-            // Desplazar hacia abajo en MessageContainer
-            if (messageContainerRef.current) {
-                messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
-            }
-        }
-    }, [activeTab, chatMessages]);
+    const handleMenuToggle = () => {
+        setIsMenuOpen(!isMenuOpen); // Alternar el estado del menú
+    };
+
+    const handleLogout = () => {
+        push("/");
+        setIsMenuOpen(false);
+    };
 
     const handleImageLoad = (index) => {
         // Recalcular la altura de los elementos RightTop y RightBottom
@@ -508,6 +563,14 @@ export default function Home({ user, setUser }) {
         }
     };
 
+    useEffect(() => {
+        if (activeTab === "Tab2") {
+            // Desplazar hacia abajo en MessageContainer
+            if (messageContainerRef.current) {
+                messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+            }
+        }
+    }, [activeTab, chatMessages]);
 
     useEffect(() => {
         const handleWindowResize = () => {
@@ -531,10 +594,9 @@ export default function Home({ user, setUser }) {
         };
     }, [posts]);
 
-
     return (
         <Container>
-            <Media queries={{ small: "(max-width: 900px)" }}>
+            <Media queries={{ small: "(max-width: 10px)" }}>
                 {(matches) =>
                     matches.small ? (
                         <>
@@ -551,12 +613,20 @@ export default function Home({ user, setUser }) {
                                         onChange={handleChange}
                                     />
                                 </MenuLeft>
-                                <MenuRight>
+                                <MenuRight onClick={handleMenuToggle}>
                                     <Image src="images/Cuadrada.png" alt="Imagen" id="image" />
                                     <TextContainer>
                                         <Text>Daniel Barillas</Text>
                                     </TextContainer>
                                 </MenuRight>
+                                {
+                                    isMenuOpen && (
+                                        <DropdownMenu>
+                                            <DropdownOption><AiFillEdit />{"  Editar Perfil"}</DropdownOption>
+                                            <DropdownOption onClick={handleLogout}><BiLogOut />{"  Cerrar Sesión"}</DropdownOption>
+                                        </DropdownMenu>
+                                    )
+                                }
                             </MenuContainer>
                             <MainContainer>
                                 <LeftContainer>
@@ -651,10 +721,37 @@ export default function Home({ user, setUser }) {
                                                     if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
                                                         return (
                                                             <>
-                                                                <ListItem2 key={index}>
+                                                                <ListItem key={index}>
                                                                     <ItemImage src={item.image} alt={item.name} />
                                                                     <ItemName>{item.name}</ItemName>
-                                                                </ListItem2>
+                                                                    <ContactState>
+                                                                        {item.state === "Enviada" && (
+                                                                            <>
+                                                                                <ButonText>
+                                                                                    {"Esperando\nRespuesta"}
+                                                                                </ButonText>
+                                                                                <Button>
+                                                                                    <BsSendCheckFill />
+                                                                                </Button>
+                                                                            </>
+                                                                        )}
+                                                                        {item.state === "Esperando" && (
+                                                                            <>
+                                                                                <Button>
+                                                                                    <MdOutlineCheckCircle />
+                                                                                </Button>
+                                                                                <Button>
+                                                                                    <MdOutlineCancel />
+                                                                                </Button>
+                                                                            </>
+                                                                        )}
+                                                                        {item.state === "Enviar" && (
+                                                                            <Button>
+                                                                                <BsFillPersonPlusFill />
+                                                                            </Button>
+                                                                        )}
+                                                                    </ContactState>
+                                                                </ListItem>
                                                             </>
                                                         );
                                                     }

@@ -2,7 +2,8 @@ import React, { useState, useRef } from "react";
 import Webcam from "react-webcam";
 import styled from "styled-components";
 import { useNavigate } from 'react-router-dom'
-
+import axios from 'axios';
+axios.defaults.baseURL = process.env.REACT_APP_REQUEST_URL;
 
 const Container = styled.div`
     display: flex;
@@ -115,7 +116,7 @@ const StyledWebcam = styled(Webcam)`
 export default function Register({ user, setUser }) {
 
     const [tipo, setTipo] = useState(true);
-    const [newUser, setNewUser] = useState({'name': '', 'email': '', 'dpi': '', 'password': '', 'confirm': '' });
+    const [newUser, setNewUser] = useState({ 'name': '', 'email': '', 'dpi': '', 'password': '', 'confirm': '' });
     const push = useNavigate();
 
     const inputRef = useRef();
@@ -138,7 +139,35 @@ export default function Register({ user, setUser }) {
     };
 
     const handleRegister = () => {
-
+        console.log(newUser)
+        if (newUser.name !== '' || newUser.email !== '' || newUser.dpi !== '' || newUser.password !== '' || newUser.confirm !== '') {
+            if (newUser.password !== newUser.confirm) {
+                alert('Las contraseñas no coinciden');
+                return;
+            } else {
+                const formData = new FormData();
+                formData.append('FULL_NAME', newUser.name);
+                formData.append('EMAIL', newUser.email);
+                formData.append('DPI', newUser.dpi);
+                formData.append('APP_PASSWORD', newUser.password);
+                formData.append('PICTURE', newUser.imagenfile);
+                axios.post('/user/register', formData)
+                    .then((res) => {
+                        if (res.data.success === true) {
+                            alert('Registro exitoso');
+                            setUser({ 'email': newUser.email, 'password': newUser.email });
+                            push('/');
+                        } else {
+                            alert(res.data.result);
+                        }
+                    })
+                    .catch((err) => {
+                        alert(err);
+                    });
+            }
+        } else {
+            alert('Debe llenar todos los campos');
+        }
     };
 
     const handleRegresar = () => {

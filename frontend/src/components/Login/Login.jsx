@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import { LuLogIn } from "react-icons/lu";
 import { AiOutlineCamera, AiOutlineUserAdd } from "react-icons/ai";
 import { GoKey } from "react-icons/go";
+import axios from 'axios';
+axios.defaults.baseURL = process.env.REACT_APP_REQUEST_URL;
 
 const Container = styled.div`
     display: flex;
@@ -123,6 +125,10 @@ const StyledWebcam = styled(Webcam)`
 export default function Login({ user, setUser }) {
 
     const [tipo, setTipo] = useState(true);
+    const [loginImage, setLoginImage] = useState({
+        imagen: null,
+        imagenfile: null
+    });
     const webcamRef = useRef(null);
     const push = useNavigate();
 
@@ -135,11 +141,37 @@ export default function Login({ user, setUser }) {
     }
 
     const handleLogin = () => {
-        push('/Home')
+        if (user.email === '' || (tipo && user.password === '')){
+            alert('Por favor llene todos los campos');
+        }else{
+            const formData = new FormData();
+            formData.append('EMAIL', user.email);
+            formData.append('APP_PASSWORD', user.password);
+            formData.append('PICTURE', loginImage.imagenfile);
+            axios.post('/user/login', formData)
+                .then((response) => {
+                    if (response.data.success) {
+                        alert(response.data.mensaje)
+                        localStorage.setItem('semisocial_session', JSON.stringify(response.data.session[0]));
+                        console.log(response.data.session[0])
+                        //push('/home');
+                    } else {
+                        console.log(response.data)
+                        alert(response.data.result);
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
     };
 
     const handleChangeMode = () => {
         setTipo(!tipo);
+        setLoginImage({
+            imagen: null,
+            imagenfile: null
+        });
     };
 
     const handleRegister = () => {
@@ -155,8 +187,7 @@ export default function Login({ user, setUser }) {
     const capture = () => {
         const imageSrc = webcamRef.current.getScreenshot();
         const file = base64toFile(imageSrc, 'capturedImage.jpg', 'image/jpeg');
-        setUser({
-            ...user,
+        setLoginImage({
             imagen: imageSrc,
             imagenfile: file
         });
@@ -197,7 +228,7 @@ export default function Login({ user, setUser }) {
                         <TextField type="text" name="email" placeholder="Correo" onChange={inputChange} value={user.email} />
                         <WebcamContainer>
                             <WebcamWrapper>
-                                <StyledWebcam audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true} />
+                                <StyledWebcam ref={webcamRef} audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true} />
                             </WebcamWrapper>
                         </WebcamContainer>
                         <ButtonsContainer>

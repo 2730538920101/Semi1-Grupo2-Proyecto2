@@ -141,22 +141,31 @@ export default function Login({ user, setUser }) {
     }
 
     const handleLogin = () => {
-        if (user.email === '' || (tipo && user.password === '')){
+        if (user.email === '' || (tipo && user.password === '')) {
             alert('Por favor llene todos los campos');
-        }else{
+        } else {
             const formData = new FormData();
             formData.append('EMAIL', user.email);
             formData.append('APP_PASSWORD', user.password);
-            formData.append('PICTURE', loginImage.imagenfile);
+            if (!tipo) {
+                const imageSrc = webcamRef.current.getScreenshot();
+                const file = base64toFile(imageSrc, 'capturedImage.jpg', 'image/jpeg');
+                setLoginImage({
+                    imagen: imageSrc,
+                    imagenfile: file
+                });
+                formData.append('PICTURE', file);
+            }else{
+                formData.append('PICTURE', null);
+            }
             axios.post('/user/login', formData)
                 .then((response) => {
                     if (response.data.success) {
-                        alert(response.data.mensaje)
+                        alert(response.data.result)
                         localStorage.setItem('semisocial_session', JSON.stringify(response.data.session[0]));
                         console.log(response.data.session[0])
-                        //push('/home');
+                        push('/home');
                     } else {
-                        console.log(response.data)
                         alert(response.data.result);
                     }
                 })
@@ -183,16 +192,6 @@ export default function Login({ user, setUser }) {
         height: 720,
         facingMode: "user"
     };
-
-    const capture = () => {
-        const imageSrc = webcamRef.current.getScreenshot();
-        const file = base64toFile(imageSrc, 'capturedImage.jpg', 'image/jpeg');
-        setLoginImage({
-            imagen: imageSrc,
-            imagenfile: file
-        });
-        handleLogin();
-    }
 
     function base64toFile(base64String, filename, mimeType) {
         const base64Data = base64String.split(',')[1];
@@ -232,7 +231,7 @@ export default function Login({ user, setUser }) {
                             </WebcamWrapper>
                         </WebcamContainer>
                         <ButtonsContainer>
-                            <Button0 onClick={capture}>Login <LuLogIn /></Button0>
+                            <Button0 onClick={handleLogin}>Login <LuLogIn /></Button0>
                             <Button onClick={handleChangeMode}>Usar credenciales <GoKey /></Button>
                         </ButtonsContainer>
                     </ContentContainer>

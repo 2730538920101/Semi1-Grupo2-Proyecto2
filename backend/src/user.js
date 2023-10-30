@@ -142,4 +142,86 @@ router.post('/login', bucket.upload.single('PICTURE'), async (req, res) => {
     }
 });
 
+router.get('/friends', async (req, res) => {
+    const ID_USER = req.query.ID_USER;
+
+    try {
+        const query = `
+            SELECT af.ID_FRIEND, au.FULL_NAME, au.PICTURE
+            FROM (
+                SELECT REQUIRED_USER_ID AS ID_FRIEND
+                FROM APP_FRIEND
+                WHERE APPLICANT_USER_ID = ? AND APP_FRIEND_STATUS = 'Aceptada'
+                UNION
+                SELECT APPLICANT_USER_ID AS ID_FRIEND
+                FROM APP_FRIEND
+                WHERE REQUIRED_USER_ID = ? AND APP_FRIEND_STATUS = 'Aceptada'
+            ) af
+            INNER JOIN APP_USER au ON af.ID_FRIEND = au.ID_USER;
+        `;
+        conn.query(query, [ID_USER,ID_USER], async (err, result) => {
+            if (err) {
+                console.error('Error al optener a los amigos:', err);
+                res.json({ success: false, result: "Error al optener a los amigos" });
+            } else {
+                res.json({ success: true, result: "Amigos optenidos exitosamente", friends: result });
+            }
+        });
+
+    } catch (error) {
+        console.error('Error al comparar imágenes:', error);
+        res.json({ success: false, result: "Error al comparar imagenes" });
+    }
+});
+
+router.get('/toconnect', async (req, res) => {
+
+    // Se obtienen los parametros necesarios
+    const ID_USER = req.query.ID_USER;
+
+    try {
+        const query = `
+            -- Obtener APPLICANT_USER_ID cuando REQUIRED_USER_ID = ID_USER y APP_FRIEND_STATUS = "Enviada"
+            SELECT AF.APPLICANT_USER_ID AS OTHER_ID, AU.FULL_NAME, AU.PICTURE, 'Enviada' AS APP_FRIEND_STATUS
+            FROM APP_FRIEND AF
+            JOIN APP_USER AU ON AF.APPLICANT_USER_ID = AU.ID_USER
+            WHERE AF.REQUIRED_USER_ID = ? AND AF.APP_FRIEND_STATUS = 'Enviada'
+            
+            UNION
+            
+            -- Obtener REQUIRED_USER_ID cuando APPLICANT_USER_ID = ID_USER y APP_FRIEND_STATUS = "Esperando"
+            SELECT AF.REQUIRED_USER_ID AS OTHER_ID, AU.FULL_NAME, AU.PICTURE, 'Esperando' AS APP_FRIEND_STATUS
+            FROM APP_FRIEND AF
+            JOIN APP_USER AU ON AF.REQUIRED_USER_ID = AU.ID_USER
+            WHERE AF.APPLICANT_USER_ID = ? AND AF.APP_FRIEND_STATUS = 'Esperando'
+            
+            UNION
+            
+            -- Obtener usuarios que no tienen una combinación con ID ID_USER y cualquier otra
+            SELECT ID_USER AS OTHER_ID, FULL_NAME, PICTURE, 'Enviar' AS APP_FRIEND_STATUS
+            FROM APP_USER
+            WHERE ID_USER <> ? AND ID_USER NOT IN (
+                SELECT DISTINCT CASE
+                    WHEN APPLICANT_USER_ID = ? THEN REQUIRED_USER_ID
+                    WHEN REQUIRED_USER_ID = ? THEN APPLICANT_USER_ID
+                END
+                FROM APP_FRIEND
+                WHERE APPLICANT_USER_ID = ? OR REQUIRED_USER_ID = ?
+            );
+        `;
+        conn.query(query, [ID_USER,ID_USER,ID_USER,ID_USER,ID_USER,ID_USER,ID_USER], async (err, result) => {
+            if (err) {
+                console.error('Error al optener a los amigos:', err);
+                res.json({ success: false, result: "Error al optener a los amigos" });
+            } else {
+                res.json({ success: true, result: "Amigos optenidos exitosamente", friends: result });
+            }
+        });
+
+    } catch (error) {
+        console.error('Error al comparar imágenes:', error);
+        res.json({ success: false, result: "Error al comparar imagenes" });
+    }
+});
+
 module.exports = router;

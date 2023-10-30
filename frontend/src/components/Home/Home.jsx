@@ -9,6 +9,8 @@ import { RiUserSearchFill } from "react-icons/ri";
 import { BsTranslate, BsFillPersonPlusFill, BsSendCheckFill } from "react-icons/bs";
 import { MdOutlineCheckCircle, MdOutlineCancel } from "react-icons/md"
 import { AiFillEdit } from "react-icons/ai";
+import axios from 'axios';
+axios.defaults.baseURL = process.env.REACT_APP_REQUEST_URL;
 
 const Container = styled.div`
     display: flex;
@@ -66,7 +68,7 @@ const MenuRight = styled.div`
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    position: relative; /* Asegura que el menú absoluto se posicione aquí */
+    position: relative;
 `;
 
 const DropdownMenu = styled.div`
@@ -76,9 +78,9 @@ const DropdownMenu = styled.div`
     background-color: rgba(0, 0, 0, 1);
     border: 1px solid white;
     border-radius: 4px;
-    display: block; /* Mostrar u ocultar el menú según isOpen */
+    display: block;
     width: 23%;
-    z-index: 2; /* Asegura que el menú esté por encima de otros elementos */
+    z-index: 2;
 `;
 
 const DropdownOption = styled.div`
@@ -133,7 +135,7 @@ const LeftContainer = styled.div`
     padding: 60px;
     box-sizing: border-box;
     background-color: rgba(0, 0, 0, 0.05);
-    overflow-y: auto; /* Agregado para permitir el scroll */
+    overflow-y: auto;
 `;
 
 const RightContainer = styled.div`
@@ -141,7 +143,7 @@ const RightContainer = styled.div`
     background-color: rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    flex: 1; /* Ocupa el espacio restante en MainContainer */
+    flex: 1;
 `;
 
 const CustomSelect = styled(Select)`
@@ -180,7 +182,7 @@ const Content2 = styled.div`
     overflow-y: auto;
     border: 1px solid white;
     display: flex;
-    flex-direction: column; /* Cambiado */
+    flex-direction: column;
 `;
 
 const SearchContainer = styled.div`
@@ -215,7 +217,7 @@ const ListItem = styled.div`
     border-right: 1px solid white;
     padding: 5px;
     cursor: pointer;
-    justify-content: space-between; /* Alinea los elementos horizontalmente */
+    justify-content: space-between;
 `;
 
 const ItemImage = styled.img`
@@ -233,15 +235,17 @@ const ItemName = styled.p`
     color: white;
     overflow: hidden;
     text-align: center;
+    width: 100%;
 `;
 
 const ContactState = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between; /* Alinea los elementos en su respectiva mitad */
+    justify-content: space-between;
     height: 65px;
-    width: 65px;
+    max-width: 50px;
+    min-width: 50px;
     color: white;
     padding: 2px;
     border-left: 1px solid white;
@@ -257,11 +261,11 @@ const Button = styled.div`
     color: white;
     text-align: center;
     width: 100%;
-    height: 100%; /* Cada botón ocupará el 50% de la altura */
+    height: 100%;
 `;
 
 const ButonText = styled(Button)`
-    font-size: 0.8rem;
+    font-size: 0.6rem;
     text-align: center;
     cursor: default;
 `;
@@ -402,22 +406,20 @@ const Username = styled.div`
 
 const CommentContainer = styled.div`
   display: flex;
-  flex-direction: column; /* Cambio a columna para apilar CommentText y CommentMeta */
+  flex-direction: column;
   border-bottom: 1px solid white;
   padding: 5px 0;
 `;
 
 const CommentText = styled.div`
-  /* Cambios en estilos para orientar a la izquierda */
   flex: 1;
   align-self: flex-start;
-  padding-right: 10px; /* Agregado espacio entre CommentText y CommentMeta */
+  padding-right: 10px;
   white-space: pre-line;
   word-wrap: break-word;
 `;
 
 const CommentMeta = styled.div`
-  /* Cambios en estilos para orientar a la derecha */
   display: flex;
   align-self: flex-end;
   align-items: center;
@@ -443,7 +445,6 @@ const PostTags = styled.div`
 `;
 
 const PostMeta = styled.div`
-    /* Cambios en estilos para orientar a la derecha */
     display: flex;
     flex: 1;
     align-self: flex-end;
@@ -456,40 +457,15 @@ const TranslateIcon = styled(BsTranslate)`
 `;
 
 export default function Home({ user, setUser }) {
+
     const push = useNavigate();
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [activeTab, setActiveTab] = useState("Tab1");
     const [searchText, setSearchText] = useState("");
     const [chatMessages, setChatMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-    const [listAmigos, setListAmigos] = useState([
-        { name: "Item 1", image: "images/Cuadrada.png" },
-        { name: "Item 2", image: "images/Cuadrada.png" },
-        { name: "Item 3", image: "images/Cuadrada.png" },
-        { name: "Item 4", image: "images/Cuadrada.png" },
-        { name: "Item 5", image: "images/Cuadrada.png" },
-        { name: "Item 6", image: "images/Cuadrada.png" },
-        { name: "Item 7", image: "images/Cuadrada.png" },
-        { name: "Item 8", image: "images/Cuadrada.png" },
-        { name: "Item 9", image: "images/Cuadrada.png" },
-        { name: "Item 10", image: "images/Cuadrada.png" },
-        { name: "Item 11", image: "images/Cuadrada.png" },
-        { name: "Item 12", image: "images/Cuadrada.png" },
-    ]);
-    const [listConectar, setListConectar] = useState([
-        { name: "Item 13", image: "images/Cuadrada.png", state: "Enviada" },
-        { name: "Item 14", image: "images/Cuadrada.png", state: "Esperando" },
-        { name: "Item 15", image: "images/Cuadrada.png", state: "Enviar" },
-        { name: "Item 16", image: "images/Cuadrada.png", state: "Enviada" },
-        { name: "Item 17", image: "images/Cuadrada.png", state: "Esperando" },
-        { name: "Item 18", image: "images/Cuadrada.png", state: "Enviar" },
-        { name: "Item 19", image: "images/Cuadrada.png", state: "Enviada" },
-        { name: "Item 20", image: "images/Cuadrada.png", state: "Esperando" },
-        { name: "Item 21", image: "images/Cuadrada.png", state: "Enviar" },
-        { name: "Item 22", image: "images/Cuadrada.png", state: "Enviada" },
-        { name: "Item 23", image: "images/Cuadrada.png", state: "Esperando" },
-        { name: "Item 24", image: "images/Cuadrada.png", state: "Enviar" },
-    ]);
+    const [listAmigos, setListAmigos] = useState([]);
+    const [listConectar, setListConectar] = useState([]);
     const [posts, setPost] = useState([
         { time: "10/10/25", user: "Usuario 1", description: "Contenido de la publicación 1.", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", comment: "Este es un coment" }], tags: ["g", "h", "i"] },
         { time: "10/10/25", user: "Usuario 2", description: "", image: "images/SemiSocial.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", comment: "Este es un coment" }, { time: "10/10/25", user: "User6", comment: "Este es un coment" }, { time: "10/10/25", user: "User7", comment: "Este es un coment" }], tags: ["f", "g", "h"] },
@@ -547,12 +523,20 @@ export default function Home({ user, setUser }) {
     };
 
     const handleLogout = () => {
-        push("/");
         setIsMenuOpen(false);
+        setUser({
+            "ID_USER": -1,
+            "FULL_NAME": "",
+            "EMAIL": "",
+            "DPI": "",
+            "APP_PASSWORD": "",
+            "PICTURE":""
+        })
+        localStorage.setItem('semisocial_session', JSON.stringify({'ID_USER':'', 'FULL_NAME':'','EMAIL':'', 'DPI':'', 'APP_PASSWORD':'', 'PICTURE':''}));
+        push("/");
     };
 
     const handleImageLoad = (index) => {
-        // Recalcular la altura de los elementos RightTop y RightBottom
         const leftImage = document.getElementById(`leftImage-${index}`);
         if (leftImage) {
             const leftImageHeight = leftImage.clientHeight;
@@ -562,6 +546,52 @@ export default function Home({ user, setUser }) {
             }
         }
     };
+
+    useEffect(() => {
+        console.log(process.env.REACT_APP_REQUEST_S3_URL + user.PICTURE)
+        if (user) {
+            if (user.ID_USER !== -1) {
+                const formData = new FormData();
+                formData.append('ID_USER', user.ID_USER);
+                axios.get('/user/friends?ID_USER='+user.ID_USER, formData)
+                    .then((res) => {
+                        if (res.data.success === true) {
+                            setListAmigos(res.data.friends)
+                        } else {
+                            alert(res.data.result);
+                        }
+                    })
+                    .catch((err) => {
+                        alert(err);
+                    });
+                axios.get('/user/toconnect?ID_USER='+user.ID_USER, formData)
+                    .then((res) => {
+                        if (res.data.success === true) {
+                            console.log(res.data)
+                            setListConectar(res.data.friends)
+                        } else {
+                            alert(res.data.result);
+                        }
+                    })
+                    .catch((err) => {
+                        alert(err);
+                    });
+            }else{
+                push("/");
+            }
+        } else {
+            if (localStorage.getItem("semisocial_session")) {
+                const TempUser = JSON.parse(localStorage.getItem("semisocial_session"));
+                if (TempUser && TempUser.ID_USER && TempUser.ID_USER !== -1) {
+                    setUser(TempUser);
+                }else{
+                    push("/");
+                }
+            } else {
+                push("/");
+            }
+        }
+    }, []);
 
     useEffect(() => {
         if (activeTab === "Tab2") {
@@ -614,7 +644,7 @@ export default function Home({ user, setUser }) {
                                     />
                                 </MenuLeft>
                                 <MenuRight onClick={handleMenuToggle}>
-                                    <Image src="images/Cuadrada.png" alt="Imagen" id="image" />
+                                    <Image src={process.env.REACT_APP_REQUEST_S3_URL + user.PICTURE} alt="Imagen" id="image" />
                                     <TextContainer>
                                         <Text>Daniel Barillas</Text>
                                     </TextContainer>
@@ -693,11 +723,11 @@ export default function Home({ user, setUser }) {
                                             </SearchContainer>
                                             <List>
                                                 {listAmigos.map((item, index) => {
-                                                    if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
+                                                    if (item.FULL_NAME.toLowerCase().includes(searchText.toLowerCase())) {
                                                         return (
                                                             <ListItem key={index}>
-                                                                <ItemImage src={item.image} alt={item.name} />
-                                                                <ItemName>{item.name}</ItemName>
+                                                                <ItemImage src={process.env.REACT_APP_REQUEST_S3_URL + item.PICTURE} alt={item.FULL_NAME} />
+                                                                <ItemName>{item.FULL_NAME}</ItemName>
                                                             </ListItem>
                                                         );
                                                     }
@@ -718,14 +748,14 @@ export default function Home({ user, setUser }) {
                                             </SearchContainer>
                                             <List>
                                                 {listConectar.map((item, index) => {
-                                                    if (item.name.toLowerCase().includes(searchText.toLowerCase())) {
+                                                    if (item.FULL_NAME.toLowerCase().includes(searchText.toLowerCase())) {
                                                         return (
                                                             <>
                                                                 <ListItem key={index}>
-                                                                    <ItemImage src={item.image} alt={item.name} />
-                                                                    <ItemName>{item.name}</ItemName>
+                                                                    <ItemImage src={process.env.REACT_APP_REQUEST_S3_URL + item.PICTURE} alt={item.FULL_NAME} />
+                                                                    <ItemName>{item.FULL_NAME}</ItemName>
                                                                     <ContactState>
-                                                                        {item.state === "Enviada" && (
+                                                                        {item.APP_FRIEND_STATUS === "Enviada" && (
                                                                             <>
                                                                                 <ButonText>
                                                                                     {"Esperando\nRespuesta"}
@@ -735,7 +765,7 @@ export default function Home({ user, setUser }) {
                                                                                 </Button>
                                                                             </>
                                                                         )}
-                                                                        {item.state === "Esperando" && (
+                                                                        {item.APP_FRIEND_STATUS === "Esperando" && (
                                                                             <>
                                                                                 <Button>
                                                                                     <MdOutlineCheckCircle />
@@ -745,7 +775,7 @@ export default function Home({ user, setUser }) {
                                                                                 </Button>
                                                                             </>
                                                                         )}
-                                                                        {item.state === "Enviar" && (
+                                                                        {item.APP_FRIEND_STATUS === "Enviar" && (
                                                                             <Button>
                                                                                 <BsFillPersonPlusFill />
                                                                             </Button>

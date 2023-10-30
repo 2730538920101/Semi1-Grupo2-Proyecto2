@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
 import styled from "styled-components";
 import { useNavigate } from 'react-router-dom'
@@ -116,7 +116,7 @@ const StyledWebcam = styled(Webcam)`
 export default function Register({ user, setUser }) {
 
     const [tipo, setTipo] = useState(true);
-    const [newUser, setNewUser] = useState({ 'name': '', 'email': '', 'dpi': '', 'password': '', 'confirm': '' });
+    const [newUser, setNewUser] = useState({ 'name': '', 'EMAIL': '', 'dpi': '', 'APP_PASSWORD': '', 'confirm': '' });
     const push = useNavigate();
 
     const inputRef = useRef();
@@ -140,22 +140,22 @@ export default function Register({ user, setUser }) {
 
     const handleRegister = () => {
         console.log(newUser)
-        if (newUser.name !== '' || newUser.email !== '' || newUser.dpi !== '' || newUser.password !== '' || newUser.confirm !== '') {
-            if (newUser.password !== newUser.confirm) {
+        if (newUser.name !== '' || newUser.EMAIL !== '' || newUser.dpi !== '' || newUser.APP_PASSWORD !== '' || newUser.confirm !== '') {
+            if (newUser.APP_PASSWORD !== newUser.confirm) {
                 alert('Las contraseñas no coinciden');
                 return;
             } else {
                 const formData = new FormData();
                 formData.append('FULL_NAME', newUser.name);
-                formData.append('EMAIL', newUser.email);
+                formData.append('EMAIL', newUser.EMAIL);
                 formData.append('DPI', newUser.dpi);
-                formData.append('APP_PASSWORD', newUser.password);
+                formData.append('APP_PASSWORD', newUser.APP_PASSWORD);
                 formData.append('PICTURE', newUser.imagenfile);
                 axios.post('/user/register', formData)
                     .then((res) => {
                         if (res.data.success === true) {
                             alert('Registro exitoso');
-                            setUser({ 'email': newUser.email, 'password': newUser.email });
+                            setUser({ 'EMAIL': newUser.EMAIL, 'APP_PASSWORD': newUser.APP_PASSWORD });
                             push('/');
                         } else {
                             alert(res.data.result);
@@ -203,15 +203,31 @@ export default function Register({ user, setUser }) {
         return file;
     }
 
+    useEffect(() => {
+        if (user && user.ID_USER && user.ID_USER !== -1) {
+            push("/home");
+        } else {
+            if (localStorage.getItem("semisocial_session")) {
+                const TempUser = JSON.parse(localStorage.getItem("semisocial_session"));
+                if (TempUser && TempUser.ID_USER && TempUser.ID_USER !== -1) {
+                    setUser(TempUser);
+                    push("/home");
+                }
+            }else{
+                localStorage.setItem('semisocial_session', JSON.stringify({'ID_USER':'', 'FULL_NAME':'','EMAIL':'', 'DPI':'', 'APP_PASSWORD':'', 'PICTURE':''}));
+            }
+        }
+    });
+
     return (
         <Container>
             <BlackBox>
                 <Title>Registro</Title>
                 <ContentContainer>
-                    <TextField type="email" name="email" placeholder="Correo Electronico" onChange={inputChange} value={newUser.email} />
+                    <TextField type="email" name="EMAIL" placeholder="Correo Electronico" onChange={inputChange} value={newUser.EMAIL} />
                     <TextField type="text" name="name" placeholder="Nombre" onChange={inputChange} value={newUser.name} />
                     <TextField type="number" name="dpi" placeholder="DPI" onChange={inputChange} value={newUser.dpi} min="1000000000000" max="9999999999999" />
-                    <TextField type="password" name="password" placeholder="Contraseña" onChange={inputChange} value={newUser.password} />
+                    <TextField type="password" name="APP_PASSWORD" placeholder="Contraseña" onChange={inputChange} value={newUser.APP_PASSWORD} />
                     <TextField type="password" name="confirm" placeholder="Confirmar Contraseña" onChange={inputChange} value={newUser.confirm} />
                     {
                         tipo ? (

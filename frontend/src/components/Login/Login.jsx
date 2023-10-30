@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
 import styled from "styled-components";
 import { useNavigate } from 'react-router-dom'
@@ -141,12 +141,12 @@ export default function Login({ user, setUser }) {
     }
 
     const handleLogin = () => {
-        if (user.email === '' || (tipo && user.password === '')) {
+        if (user.EMAIL === '' || (tipo && user.APP_PASSWORD === '')) {
             alert('Por favor llene todos los campos');
         } else {
             const formData = new FormData();
-            formData.append('EMAIL', user.email);
-            formData.append('APP_PASSWORD', user.password);
+            formData.append('EMAIL', user.EMAIL);
+            formData.append('APP_PASSWORD', user.APP_PASSWORD);
             if (!tipo) {
                 const imageSrc = webcamRef.current.getScreenshot();
                 const file = base64toFile(imageSrc, 'capturedImage.jpg', 'image/jpeg');
@@ -155,15 +155,29 @@ export default function Login({ user, setUser }) {
                     imagenfile: file
                 });
                 formData.append('PICTURE', file);
-            }else{
+            } else {
                 formData.append('PICTURE', null);
             }
             axios.post('/user/login', formData)
                 .then((response) => {
                     if (response.data.success) {
                         alert(response.data.result)
-                        localStorage.setItem('semisocial_session', JSON.stringify(response.data.session[0]));
-                        console.log(response.data.session[0])
+                        setUser({
+                            'ID_USER':response.data.session[0].ID_USER,
+                            'EMAIL':response.data.session[0].EMAIL,
+                            'FULL_NAME':response.data.session[0].FULL_NAME,
+                            'DPI':response.data.session[0].DPI,
+                            'APP_PASSWORD':'', 
+                            'PICTURE':response.data.session[0].PICTURE
+                        })
+                        localStorage.setItem('semisocial_session', JSON.stringify({
+                            'ID_USER':response.data.session[0].ID_USER,
+                            'EMAIL':response.data.session[0].EMAIL,
+                            'FULL_NAME':response.data.session[0].FULL_NAME,
+                            'DPI':response.data.session[0].DPI,
+                            'APP_PASSWORD':'', 
+                            'PICTURE':response.data.session[0].PICTURE
+                        }));
                         push('/home');
                     } else {
                         alert(response.data.result);
@@ -205,14 +219,30 @@ export default function Login({ user, setUser }) {
         return file;
     }
 
+    useEffect(() => {
+        if (user && user.ID_USER && user.ID_USER !== -1) {
+            push("/home");
+        } else {
+            if (localStorage.getItem("semisocial_session")) {
+                const TempUser = JSON.parse(localStorage.getItem("semisocial_session"));
+                if (TempUser && TempUser.ID_USER && TempUser.ID_USER !== -1) {
+                    setUser(TempUser);
+                    push("/home");
+                }
+            }else{
+                localStorage.setItem('semisocial_session', JSON.stringify({'ID_USER':'', 'FULL_NAME':'','EMAIL':'', 'DPI':'', 'APP_PASSWORD':'', 'PICTURE':''}));
+            }
+        }
+    });
+
     return (
         <Container>
             {tipo ? (
                 <BlackBox>
                     <Title>Login</Title>
                     <ContentContainer>
-                        <TextField type="text" name="email" placeholder="Correo" onChange={inputChange} value={user.email} />
-                        <TextField type="password" name="password" placeholder="Contraseña" onChange={inputChange} value={user.password} />
+                        <TextField type="email" name="EMAIL" placeholder="Correo" onChange={inputChange} value={user.EMAIL} />
+                        <TextField type="password" name="APP_PASSWORD" placeholder="Contraseña" onChange={inputChange} value={user.APP_PASSWORD} />
                         <ButtonsContainer>
                             <Button0 onClick={handleLogin}>Login <LuLogIn /></Button0>
                             <Button onClick={handleChangeMode}>Usar reconocimiento facial <AiOutlineCamera /></Button>
@@ -224,7 +254,7 @@ export default function Login({ user, setUser }) {
                 <BlackBox2>
                     <Title>Login</Title>
                     <ContentContainer>
-                        <TextField type="text" name="email" placeholder="Correo" onChange={inputChange} value={user.email} />
+                        <TextField type="email" name="EMAIL" placeholder="Correo" onChange={inputChange} value={user.EMAIL} />
                         <WebcamContainer>
                             <WebcamWrapper>
                                 <StyledWebcam ref={webcamRef} audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true} />

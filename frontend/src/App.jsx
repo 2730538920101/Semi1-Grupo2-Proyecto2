@@ -10,7 +10,7 @@ const Container = styled.div`
 
 function App() {
 
-  const [user, setUser] = useState({'email':'', 'password':''})
+  const [user, setUser] = useState({'ID_USER':-1, 'FULL_NAME':'','EMAIL':'', 'DPI':'', 'APP_PASSWORD':'', 'PICTURE':''})
 
   return (
     <Container>
@@ -28,7 +28,7 @@ function App() {
           </Route>
           <Route path="/Home">
             <Route index element={
-              <Home />
+              <Home user={user} setUser={setUser} />
             } />
           </Route>
         </Routes>

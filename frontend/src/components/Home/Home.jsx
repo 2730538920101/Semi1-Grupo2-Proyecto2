@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import Media from "react-media";
 import Select from "react-select";
+import Webcam from "react-webcam";
 import { useNavigate } from 'react-router-dom'
 import { IoMdContacts } from "react-icons/io";
 import { BiMessageDetail, BiLogOut } from "react-icons/bi";
 import { RiUserSearchFill } from "react-icons/ri";
 import { BsTranslate, BsFillPersonPlusFill, BsSendCheckFill } from "react-icons/bs";
-import { MdOutlineCheckCircle, MdOutlineCancel } from "react-icons/md"
+import { MdOutlineCheckCircle, MdOutlineCancel, MdCancelPresentation } from "react-icons/md"
 import { AiFillEdit } from "react-icons/ai";
 import axios from 'axios';
 axios.defaults.baseURL = process.env.REACT_APP_REQUEST_URL;
@@ -171,6 +172,10 @@ const TabButton = styled.button`
     padding: 5px;
 `;
 
+const TabButtonDisable = styled(TabButton)`
+    color: gray;
+`;
+
 const Content = styled.div`
     flex: 1;
     overflow-y: auto;
@@ -188,7 +193,7 @@ const Content2 = styled.div`
 const SearchContainer = styled.div`
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 0;
     display: flex;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.15);
@@ -456,14 +461,141 @@ const TranslateIcon = styled(BsTranslate)`
     cursor: pointer;
 `;
 
+const ModalContent = styled.div`
+    display: flex;
+    flex: 1;
+    bottom: 0; /* Lo mantiene en la parte inferior */
+    left: 0; /* Lo mantiene a la izquierda */
+    transform: translate(0, 0); /* No se desplaza */
+    background: black;
+    width: 100%; /* Ocupa el 100% del ancho del modal */
+    height: 100%; /* Ocupa el 100% del alto del modal */
+    overflow-y: auto; /* Agregar barra de desplazamiento si es necesario */
+`;
+
+const ModalButton = styled.div`
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    border-radius: 5px;
+    color: white;
+    font-size: 40px;
+`;
+
+const BlackBox = styled.div`
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 30px;
+    width: 60%;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border: 1px solid white;
+
+    @media (max-width: 300px) {
+        min-width: 200px; /* Cambia el min-width a 200px cuando la pantalla sea menor o igual a 300px de ancho */
+    }
+`;
+
+const CommonStyles = `
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid white;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+`;
+
+const TextField = styled.input`
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    ${CommonStyles}
+        
+    &:focus::placeholder {
+        color: transparent;
+        transform: translateY(-20px);
+        transition: all 0.3s ease;
+    }
+        
+    &::placeholder {
+        color: white;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        transition: all 0.3s ease;
+    }
+`;
+
+const ButtonsContainer = styled.div`
+    display: flex;
+    width: 100%;
+`;
+
+const Button0 = styled.button`
+    width: 50%;
+    padding: 10px;
+    margin-bottom: 5px;
+    ${CommonStyles}
+`;
+
+const Button1 = styled(Button0)`
+    margin-right: 3px;
+`;
+
+const Button2 = styled(Button0)`
+    width: 100%;
+`;
+
+const Title = styled.h2`
+    margin-bottom: 20px;
+    color:white;
+`;
+
+const ContentContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+`;
+
+const WebcamContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const WebcamWrapper = styled.div`
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 15px;
+`;
+
+const StyledWebcam = styled(Webcam)`
+    width: 100%;
+    height: 100%;
+`;
+
 export default function Home({ user, setUser }) {
 
     const push = useNavigate();
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [activeTab, setActiveTab] = useState("Tab1");
     const [searchText, setSearchText] = useState("");
-    const [chatMessages, setChatMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [tipo, setTipo] = useState(true);
+    const [chatID, setChatID] = useState(-1);
+    const [chatMessages, setChatMessages] = useState([]);
     const [listAmigos, setListAmigos] = useState([]);
     const [listConectar, setListConectar] = useState([]);
     const [posts, setPost] = useState([
@@ -485,14 +617,99 @@ export default function Home({ user, setUser }) {
     ]);
     const [filteredPosts, setFilteredPosts] = useState(posts);
     const [listEtiquetas, setListEtiquetas] = useState(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+    const [editUser, setEditUser] = useState({ 'name': '', 'EMAIL': '', 'dpi': '', 'APP_PASSWORD': '' });
+    const inputRef = useRef();
+    const webcamRef = useRef(null);
     const messageContainerRef = useRef(null);
+
+    const inputChange = ({ target }) => {
+        const { name, value } = target
+        setEditUser({
+            ...editUser,
+            [name]: value
+        })
+    }
+
+    const handleImagen = () => {
+        inputRef.current.click();
+    };
+
+    const handleChangeMode = () => {
+        setTipo(!tipo);
+    };
+
+    const handleEdit = () => {
+        console.log(editUser)
+        if (editUser.name !== '' || editUser.EMAIL !== '' || editUser.dpi !== '' || editUser.APP_PASSWORD !== '') {
+            const formData = new FormData();
+            formData.append('FULL_NAME', editUser.name);
+            formData.append('EMAIL', editUser.EMAIL);
+            formData.append('DPI', editUser.dpi);
+            formData.append('APP_PASSWORD', editUser.APP_PASSWORD);
+            formData.append('PICTURE', editUser.imagenfile);
+            /*
+            axios.post('/user/register', formData)
+                .then((res) => {
+                    if (res.data.success === true) {
+                        alert('Registro exitoso');
+                        setUser({ 'EMAIL': editUser.EMAIL, 'APP_PASSWORD': editUser.APP_PASSWORD });
+                        push('/');
+                    } else {
+                        alert(res.data.result);
+                    }
+                })
+                .catch((err) => {
+                    alert(err);
+                });
+            */
+        } else {
+            alert('Debe llenar todos los campos');
+        }
+    };
+
+    const videoConstraints = {
+        width: 720,
+        height: 720,
+        facingMode: "user"
+    };
+
+    const capture = () => {
+        const imageSrc = webcamRef.current.getScreenshot();
+        const file = base64toFile(imageSrc, 'capturedImage.jpg', 'image/jpeg');
+        setEditUser({
+            ...editUser,
+            imagen: imageSrc,
+            imagenfile: file
+        });
+        setTipo(true);
+    }
+
+    function base64toFile(base64String, filename, mimeType) {
+        const base64Data = base64String.split(',')[1];
+        const decodedData = atob(base64Data);
+        const byteArray = new Uint8Array(decodedData.length);
+        for (let i = 0; i < decodedData.length; i++) {
+            byteArray[i] = decodedData.charCodeAt(i);
+        }
+        const blob = new Blob([byteArray], { type: mimeType });
+        const file = new File([blob], filename, { type: mimeType });
+        return file;
+    }
 
     const etiquetas = listEtiquetas.map((item, index) => ({
         label: item,
         value: index,
     }));
+
+    const openEditModal = () => {
+        setShowEditModal(true);
+        setIsMenuOpen(false);
+    };
+
+    const closeEditModal = () => {
+        setShowEditModal(false);
+    };
+
 
     const handleChange = (selected) => {
         setSelectedOptions(selected);
@@ -513,13 +730,27 @@ export default function Home({ user, setUser }) {
 
     const handleSend = () => {
         if (newMessage) {
-            setChatMessages([...chatMessages, { text: newMessage, isMine: true }]);
-            setNewMessage("");
+            axios.post("/user/mensajes", {
+                ID_USER: user.ID_USER,
+                ID_FRIEND: chatID,
+                CONTENT: newMessage
+            })
+                .then((res) => {
+                    if (res.data.success === true) {
+                        setNewMessage("");
+                    }
+                    else {
+                        alert(res.data.result);
+                    }
+                })
+                .catch((err) => {
+                    alert(err);
+                });
         }
     };
 
     const handleMenuToggle = () => {
-        setIsMenuOpen(!isMenuOpen); // Alternar el estado del menú
+        setIsMenuOpen(!isMenuOpen);
     };
 
     const handleLogout = () => {
@@ -530,9 +761,9 @@ export default function Home({ user, setUser }) {
             "EMAIL": "",
             "DPI": "",
             "APP_PASSWORD": "",
-            "PICTURE":""
+            "PICTURE": ""
         })
-        localStorage.setItem('semisocial_session', JSON.stringify({'ID_USER':'', 'FULL_NAME':'','EMAIL':'', 'DPI':'', 'APP_PASSWORD':'', 'PICTURE':''}));
+        localStorage.setItem('semisocial_session', JSON.stringify({ 'ID_USER': '', 'FULL_NAME': '', 'EMAIL': '', 'DPI': '', 'APP_PASSWORD': '', 'PICTURE': '' }));
         push("/");
     };
 
@@ -547,13 +778,152 @@ export default function Home({ user, setUser }) {
         }
     };
 
+    const fetchAndUpdateData = () => {
+        if (user.ID_USER !== -1) {
+            const formData = new FormData();
+            formData.append("ID_USER", user.ID_USER);
+            axios
+                .get("/user/friends?ID_USER=" + user.ID_USER, formData)
+                .then((res) => {
+                    if (res.data.success === true) {
+                        if (!arraysEqual(res.data.friends, listAmigos)) {
+                            setListAmigos(res.data.friends);
+                        }
+                    } else {
+                        alert(res.data.result);
+                    }
+                })
+                .catch((err) => {
+                    alert(err);
+                });
+            axios
+                .get("/user/toconnect?ID_USER=" + user.ID_USER, formData)
+                .then((res) => {
+                    if (res.data.success === true) {
+                        if (!arraysEqual(res.data.friends, listConectar)) {
+                            setListConectar(res.data.friends);
+                        }
+                    } else {
+                        alert(res.data.result);
+                    }
+                })
+                .catch((err) => {
+                    alert(err);
+                });
+            if (chatID !== -1) {
+                axios
+                    .get("/user/chat?ID_USER=" + user.ID_USER + "&ID_FRIEND=" + chatID)
+                    .then((res) => {
+                        if (res.data.success === true) {
+                            if (!arraysEqual(res.data.messages, chatMessages)) {
+                                setChatMessages(res.data.messages);
+                            }
+                        } else {
+                            setChatID(-1);
+                            alert(res.data.result);
+                        }
+                    })
+                    .catch((err) => {
+                        alert(err);
+                    });
+            }
+        } else {
+            push("/");
+        }
+    };
+
+    const arraysEqual = (arr1, arr2) => {
+        if (arr1.length !== arr2.length) return false;
+        for (let i = 0; i < arr1.length; i++) {
+            if (!areObjectsEqual(arr1[i], arr2[i])) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    const areObjectsEqual = (obj1, obj2) => {
+        const keys1 = Object.keys(obj1);
+        const keys2 = Object.keys(obj2);
+
+        if (keys1.length !== keys2.length) return false;
+
+        for (const key of keys1) {
+            if (obj1[key] !== obj2[key]) return false;
+        }
+
+        return true;
+    };
+
+    const sendFriendRequest = (ID_USER) => {
+        axios.post("/user/friendrequest", {
+            APPLICANT_USER_ID: user.ID_USER,
+            REQUIRED_USER_ID: ID_USER
+        })
+            .then((res) => {
+                alert(res.data.result);
+            })
+            .catch((err) => {
+                alert(err);
+            });
+    }
+
+    const setChat = (ID_USER) => {
+        axios
+            .get("/user/chat?ID_USER=" + user.ID_USER + "&ID_FRIEND=" + ID_USER)
+            .then((res) => {
+                if (res.data.success === true) {
+                    setChatID(ID_USER);
+                    setChatMessages(res.data.messages);
+                    setActiveTab("Tab3")
+                } else {
+                    setChatID(-1);
+                    alert(res.data.result);
+                }
+            })
+            .catch((err) => {
+                alert(err);
+            });
+    }
+
     useEffect(() => {
-        console.log(process.env.REACT_APP_REQUEST_S3_URL + user.PICTURE)
+        fetchAndUpdateData();
+        const intervalId = setInterval(fetchAndUpdateData, 1000);
+        return () => clearInterval(intervalId);
+    }, [user.ID_USER, listAmigos, listConectar]);
+
+    const friendrequestaccept = (ID_USER) => {
+        axios.put("/user/friendrequestaccept", {
+            APPLICANT_USER_ID: ID_USER,
+            REQUIRED_USER_ID: user.ID_USER
+        })
+            .then((res) => {
+                alert(res.data.result);
+            })
+            .catch((err) => {
+                alert(err);
+            });
+    }
+
+    const friendrequestreject = (ID_USER) => {
+        axios.put("/user/friendrequestreject", {
+            APPLICANT_USER_ID: ID_USER,
+            REQUIRED_USER_ID: user.ID_USER
+        })
+            .then((res) => {
+                alert(res.data.result);
+            })
+            .catch((err) => {
+                alert(err);
+            });
+    }
+
+    useEffect(() => {
         if (user) {
             if (user.ID_USER !== -1) {
                 const formData = new FormData();
                 formData.append('ID_USER', user.ID_USER);
-                axios.get('/user/friends?ID_USER='+user.ID_USER, formData)
+                axios.get('/user/friends?ID_USER=' + user.ID_USER, formData)
                     .then((res) => {
                         if (res.data.success === true) {
                             setListAmigos(res.data.friends)
@@ -564,10 +934,9 @@ export default function Home({ user, setUser }) {
                     .catch((err) => {
                         alert(err);
                     });
-                axios.get('/user/toconnect?ID_USER='+user.ID_USER, formData)
+                axios.get('/user/toconnect?ID_USER=' + user.ID_USER, formData)
                     .then((res) => {
                         if (res.data.success === true) {
-                            console.log(res.data)
                             setListConectar(res.data.friends)
                         } else {
                             alert(res.data.result);
@@ -576,7 +945,7 @@ export default function Home({ user, setUser }) {
                     .catch((err) => {
                         alert(err);
                     });
-            }else{
+            } else {
                 push("/");
             }
         } else {
@@ -584,7 +953,7 @@ export default function Home({ user, setUser }) {
                 const TempUser = JSON.parse(localStorage.getItem("semisocial_session"));
                 if (TempUser && TempUser.ID_USER && TempUser.ID_USER !== -1) {
                     setUser(TempUser);
-                }else{
+                } else {
                     push("/");
                 }
             } else {
@@ -595,7 +964,6 @@ export default function Home({ user, setUser }) {
 
     useEffect(() => {
         if (activeTab === "Tab2") {
-            // Desplazar hacia abajo en MessageContainer
             if (messageContainerRef.current) {
                 messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
             }
@@ -604,7 +972,6 @@ export default function Home({ user, setUser }) {
 
     useEffect(() => {
         const handleWindowResize = () => {
-            // Vuelve a calcular la altura de los elementos RightPost
             posts.forEach((post, index) => {
                 const leftImage = document.getElementById(`leftImage-${index}`);
                 if (leftImage) {
@@ -646,13 +1013,13 @@ export default function Home({ user, setUser }) {
                                 <MenuRight onClick={handleMenuToggle}>
                                     <Image src={process.env.REACT_APP_REQUEST_S3_URL + user.PICTURE} alt="Imagen" id="image" />
                                     <TextContainer>
-                                        <Text>Daniel Barillas</Text>
+                                        <Text>{user.FULL_NAME}</Text>
                                     </TextContainer>
                                 </MenuRight>
                                 {
                                     isMenuOpen && (
                                         <DropdownMenu>
-                                            <DropdownOption><AiFillEdit />{"  Editar Perfil"}</DropdownOption>
+                                            <DropdownOption onClick={openEditModal}><AiFillEdit />{"  Editar Perfil"}</DropdownOption>
                                             <DropdownOption onClick={handleLogout}><BiLogOut />{"  Cerrar Sesión"}</DropdownOption>
                                         </DropdownMenu>
                                     )
@@ -660,44 +1027,107 @@ export default function Home({ user, setUser }) {
                             </MenuContainer>
                             <MainContainer>
                                 <LeftContainer>
-                                    {/* Renderiza la lista de publicaciones */}
-                                    {filteredPosts.map((post, index) => (
-                                        <Post key={index}>
-                                            <LeftPost>
-                                                <Username>{post.user}</Username>
-                                                <LeftImage src={post.image} alt="Imagen izquierda" id={`leftImage-${index}`} onLoad={() => handleImageLoad(index)} />
-                                            </LeftPost>
-                                            <RightPost id={`rightPost-${index}`}>
-                                                <RightTop>
-                                                    {post.description !== "" ? post.description : "Sin descripción."}
-                                                    <PostData>
-                                                        <PostTags>
-                                                            {post.tags.map((tag, index) => (
-                                                                <span key={index}>{"#" + tag + "\n"}</span>
+                                    {showEditModal ? (
+                                        <ModalContent>
+                                            <ModalButton onClick={closeEditModal} style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                                                <MdCancelPresentation />
+                                            </ModalButton>
+                                            <BlackBox>
+                                                <Title>Editar</Title>
+                                                <ContentContainer>
+                                                    <TextField type="email" name="EMAIL" placeholder="Correo Electronico" onChange={inputChange} value={editUser.EMAIL} />
+                                                    <TextField type="text" name="name" placeholder="Nombre" onChange={inputChange} value={editUser.name} />
+                                                    <TextField type="number" name="dpi" placeholder="DPI" onChange={inputChange} value={editUser.dpi} min="1000000000000" max="9999999999999" />
+                                                    <TextField type="password" name="APP_PASSWORD" placeholder="Contraseña" onChange={inputChange} value={editUser.APP_PASSWORD} />
+                                                    {
+                                                        tipo ? (
+                                                            editUser.imagen ? (
+                                                                <img src={editUser.imagen} alt="Imagen seleccionada" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', marginBottom: '10px' }} />
+                                                            ) : (
+                                                                <></>
+                                                            )
+                                                        ) : (
+                                                            <WebcamContainer>
+                                                                <WebcamWrapper>
+                                                                    <StyledWebcam ref={webcamRef} audio={false} screenshotFormat="image/jpeg" videoConstraints={videoConstraints} mirrored={true} />
+                                                                </WebcamWrapper>
+                                                            </WebcamContainer>
+                                                        )
+                                                    }
+                                                    <ButtonsContainer>
+                                                        {tipo ? (
+                                                            <Button1 onClick={handleImagen}>
+                                                                Subir imagen
+                                                                <input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    style={{ display: 'none' }}
+                                                                    ref={inputRef}
+                                                                    onChange={(e) => {
+                                                                        const file = e.target.files[0];
+                                                                        setEditUser({
+                                                                            ...editUser,
+                                                                            imagen: URL.createObjectURL(file),
+                                                                            imagenfile: file
+                                                                        });
+                                                                    }}
+                                                                />
+                                                            </Button1>
+                                                        ) : (
+                                                            <Button1 onClick={capture}>
+                                                                Tomar foto
+                                                            </Button1>
+                                                        )}
+                                                        <Button0 onClick={handleChangeMode}>{tipo ? "Usar camara" : "Usar imagen del dispositivo"}</Button0>
+                                                    </ButtonsContainer>
+                                                    <ButtonsContainer>
+                                                        <Button2 onClick={handleEdit}>Editar perfil</Button2>
+                                                    </ButtonsContainer>
+                                                </ContentContainer>
+                                            </BlackBox>
+                                        </ModalContent>
+                                    ) : (
+                                        <>
+                                            {/* Renderiza la lista de publicaciones */}
+                                            {filteredPosts.map((post, index) => (
+                                                <Post key={index}>
+                                                    <LeftPost>
+                                                        <Username>{post.user}</Username>
+                                                        <LeftImage src={post.image} alt="Imagen izquierda" id={`leftImage-${index}`} onLoad={() => handleImageLoad(index)} />
+                                                    </LeftPost>
+                                                    <RightPost id={`rightPost-${index}`}>
+                                                        <RightTop>
+                                                            {post.description !== "" ? post.description : "Sin descripción."}
+                                                            <PostData>
+                                                                <PostTags>
+                                                                    {post.tags.map((tag, index) => (
+                                                                        <span key={index}>{"#" + tag + "\n"}</span>
+                                                                    ))}
+                                                                </PostTags>
+                                                                <PostMeta style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                                    <PostDate>Fecha: {post.time}</PostDate>
+                                                                    <TranslateIcon />
+                                                                </PostMeta>
+                                                            </PostData>
+                                                        </RightTop>
+                                                        <RightBottom>
+                                                            {post.comments.map((comment, index) => (
+                                                                <CommentContainer key={index}>
+                                                                    <CommentText>
+                                                                        {comment.user}: {comment.comment}
+                                                                    </CommentText>
+                                                                    <CommentMeta>
+                                                                        <PostDate>Fecha: {comment.time}</PostDate>
+                                                                        <TranslateIcon />
+                                                                    </CommentMeta>
+                                                                </CommentContainer>
                                                             ))}
-                                                        </PostTags>
-                                                        <PostMeta style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                            <PostDate>Fecha: {post.time}</PostDate>
-                                                            <TranslateIcon />
-                                                        </PostMeta>
-                                                    </PostData>
-                                                </RightTop>
-                                                <RightBottom>
-                                                    {post.comments.map((comment, index) => (
-                                                        <CommentContainer key={index}>
-                                                            <CommentText>
-                                                                {comment.user}: {comment.comment}
-                                                            </CommentText>
-                                                            <CommentMeta>
-                                                                <PostDate>Fecha: {comment.time}</PostDate>
-                                                                <TranslateIcon />
-                                                            </CommentMeta>
-                                                        </CommentContainer>
-                                                    ))}
-                                                </RightBottom>
-                                            </RightPost>
-                                        </Post>
-                                    ))}
+                                                        </RightBottom>
+                                                    </RightPost>
+                                                </Post>
+                                            ))}
+                                        </>
+                                    )}
                                 </LeftContainer>
                                 <RightContainer>
                                     <Tabs>
@@ -707,9 +1137,17 @@ export default function Home({ user, setUser }) {
                                         <TabButton onClick={() => handleTabClick("Tab2")} style={{ border: activeTab === "Tab2" ? "2px solid white" : "none", }}>
                                             <RiUserSearchFill /> Conectar
                                         </TabButton>
-                                        <TabButton onClick={() => handleTabClick("Tab3")} style={{ border: activeTab === "Tab3" ? "2px solid white" : "none", }}>
-                                            <BiMessageDetail /> Chat
-                                        </TabButton>
+                                        {
+                                            chatID !== -1 ? (
+                                                <TabButton onClick={() => handleTabClick("Tab3")} style={{ border: activeTab === "Tab3" ? "2px solid white" : "none", }}>
+                                                    <BiMessageDetail /> Chat
+                                                </TabButton>
+                                            ) : (
+                                                <TabButtonDisable>
+                                                    <BiMessageDetail /> Chat
+                                                </TabButtonDisable>
+                                            )
+                                        }
                                     </Tabs>
                                     {activeTab === "Tab1" && (
                                         <Content>
@@ -725,7 +1163,7 @@ export default function Home({ user, setUser }) {
                                                 {listAmigos.map((item, index) => {
                                                     if (item.FULL_NAME.toLowerCase().includes(searchText.toLowerCase())) {
                                                         return (
-                                                            <ListItem key={index}>
+                                                            <ListItem key={index} onClick={() => setChat(item.ID_FRIEND)}>
                                                                 <ItemImage src={process.env.REACT_APP_REQUEST_S3_URL + item.PICTURE} alt={item.FULL_NAME} />
                                                                 <ItemName>{item.FULL_NAME}</ItemName>
                                                             </ListItem>
@@ -754,33 +1192,33 @@ export default function Home({ user, setUser }) {
                                                                 <ListItem key={index}>
                                                                     <ItemImage src={process.env.REACT_APP_REQUEST_S3_URL + item.PICTURE} alt={item.FULL_NAME} />
                                                                     <ItemName>{item.FULL_NAME}</ItemName>
-                                                                    <ContactState>
-                                                                        {item.APP_FRIEND_STATUS === "Enviada" && (
-                                                                            <>
-                                                                                <ButonText>
-                                                                                    {"Esperando\nRespuesta"}
-                                                                                </ButonText>
-                                                                                <Button>
-                                                                                    <BsSendCheckFill />
-                                                                                </Button>
-                                                                            </>
-                                                                        )}
-                                                                        {item.APP_FRIEND_STATUS === "Esperando" && (
-                                                                            <>
-                                                                                <Button>
-                                                                                    <MdOutlineCheckCircle />
-                                                                                </Button>
-                                                                                <Button>
-                                                                                    <MdOutlineCancel />
-                                                                                </Button>
-                                                                            </>
-                                                                        )}
-                                                                        {item.APP_FRIEND_STATUS === "Enviar" && (
+                                                                    {item.APP_FRIEND_STATUS === "Enviada" && (
+                                                                        <ContactState>
+                                                                            <ButonText>
+                                                                                {"Esperando\nRespuesta"}
+                                                                            </ButonText>
+                                                                            <Button>
+                                                                                <BsSendCheckFill />
+                                                                            </Button>
+                                                                        </ContactState>
+                                                                    )}
+                                                                    {item.APP_FRIEND_STATUS === "Esperando" && (
+                                                                        <ContactState>
+                                                                            <Button onClick={() => friendrequestaccept(item.OTHER_ID)}>
+                                                                                <MdOutlineCheckCircle />
+                                                                            </Button>
+                                                                            <Button onClick={() => friendrequestreject(item.OTHER_ID)}>
+                                                                                <MdOutlineCancel />
+                                                                            </Button>
+                                                                        </ContactState>
+                                                                    )}
+                                                                    {item.APP_FRIEND_STATUS === "Enviar" && (
+                                                                        <ContactState onClick={() => sendFriendRequest(item.OTHER_ID)}>
                                                                             <Button>
                                                                                 <BsFillPersonPlusFill />
                                                                             </Button>
-                                                                        )}
-                                                                    </ContactState>
+                                                                        </ContactState>
+                                                                    )}
                                                                 </ListItem>
                                                             </>
                                                         );
@@ -796,9 +1234,9 @@ export default function Home({ user, setUser }) {
                                                 {chatMessages.map((message, index) => (
                                                     <MessageContainer key={index}>
                                                         {message.isMine ? (
-                                                            <MyMessage>{message.text}</MyMessage>
+                                                            <MyMessage>{message.CONTENT}</MyMessage>
                                                         ) : (
-                                                            <OtherMessage>{message.text}</OtherMessage>
+                                                            <OtherMessage>{message.CONTENT}</OtherMessage>
                                                         )}
                                                     </MessageContainer>
                                                 ))}

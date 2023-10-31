@@ -4,6 +4,7 @@ const cors = require('cors');
 const app = express();
 const user = require('./user');
 const comment = require('./comment');
+const post = require('./post');
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
@@ -17,5 +18,6 @@ app.use(function (req, res, next) {
 // Definicion de rutas
 app.use('/user', user);
 app.use('/comment', comment);
+app.use('/post', post);
 
 module.exports = app

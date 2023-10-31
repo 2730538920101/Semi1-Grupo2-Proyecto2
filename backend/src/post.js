@@ -7,7 +7,6 @@ router.post('', bucket.upload.single('APP_POST_IMAGE'), async (req, res) => {
     try {
         // Se obtiene los parametros que posee esta entidad
         const { APP_USER_ID, APP_POST_DESCRIPTION } = req.body;
-
         // Subida de la foto
         bucket.uploadFiletoS3(req.file, process.env.AWS_BUCKET_FOLDER_PROFILE, (err, data) => {
             if (err) {

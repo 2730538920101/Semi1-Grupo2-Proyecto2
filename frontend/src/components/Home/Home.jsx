@@ -740,7 +740,6 @@ export default function Home({ user, setUser }) {
         setShowEditModal(false);
     };
 
-
     const handleChange = (selected) => {
         setSelectedOptions(selected);
         const selectedTags = selected.map((option) => option.label);
@@ -927,12 +926,6 @@ export default function Home({ user, setUser }) {
             });
     }
 
-    useEffect(() => {
-        fetchAndUpdateData();
-        const intervalId = setInterval(fetchAndUpdateData, 1000);
-        return () => clearInterval(intervalId);
-    }, [user.ID_USER, listAmigos, listConectar]);
-
     const friendrequestaccept = (ID_USER) => {
         axios.put("/user/friendrequestaccept", {
             APPLICANT_USER_ID: ID_USER,
@@ -958,6 +951,36 @@ export default function Home({ user, setUser }) {
                 alert(err);
             });
     }
+
+    const doNewPost = () => {
+        if (newPost.imagen !== 'images/PlaceHolder.jpg') {
+            const formData = new FormData();
+            formData.append('APP_POST_DESCRIPTION', newPost.DESCRIPTION);
+            formData.append('APP_USER_ID', user.ID_USER);
+            formData.append('APP_POST_IMAGE', newPost.imagenfile);
+            axios.post("/post/", formData)
+                .then((res) => {
+                    if (res.data.success === true) {
+                        alert(res.data.result);
+                        setNewPost({ 'DESCRIPTION': '', 'imagen': 'images/PlaceHolder.jpg' });
+                    }
+                    else {
+                        alert(res.data.result);
+                    }
+                })
+                .catch((err) => {
+                    alert(err);
+                });
+        } else {
+            alert('Debe ingresar una imagen');
+        }
+    }
+
+    useEffect(() => {
+        fetchAndUpdateData();
+        const intervalId = setInterval(fetchAndUpdateData, 1000);
+        return () => clearInterval(intervalId);
+    }, [user.ID_USER, listAmigos, listConectar]);
 
     useEffect(() => {
         if (user) {
@@ -1155,7 +1178,7 @@ export default function Home({ user, setUser }) {
                                                                 outline: 'none',
                                                             }}
                                                         />
-                                                        <Publish style={{ cursor: 'pointer' }} ><AiOutlinePlus></AiOutlinePlus>{" Publicar"}</Publish>
+                                                        <Publish style={{ cursor: 'pointer' }} onClick={doNewPost} ><AiOutlinePlus></AiOutlinePlus>{" Publicar"}</Publish>
                                                         <Publish2 style={{ cursor: 'pointer' }} onClick={handleImagen2}><AiOutlinePlus></AiOutlinePlus>{" Subir imagen"}
                                                             <input
                                                                 type="file"

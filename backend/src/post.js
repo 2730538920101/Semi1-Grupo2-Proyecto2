@@ -33,8 +33,9 @@ router.post('', bucket.upload.single('APP_POST_IMAGE'), async (req, res) => {
 });
 
 // Obtener todos los post con sus respectivos comentarios
-router.get('', (req, res) => {
-    const commentId = req.params.id;
+router.get('/:id_usuario', (req, res) => {
+
+    const id_usuario = req.params.id_usuario;
     const query = `SELECT ap.APP_POST_ID AS ID_POST, ap.APP_POST_IMAGE AS IMAGE_POST, ap.APP_POST_DESCRIPTION, ap.APP_POST_DATE,
     au.ID_USER AS ID_USER_POST, au.FULL_NAME AS FULL_NAME_USER_POST, au.PICTURE AS IMAGE_USER_POST,
     JSON_ARRAYAGG(JSON_OBJECT(
@@ -45,9 +46,10 @@ router.get('', (req, res) => {
     INNER JOIN APP_USER au ON au.ID_USER = ap.APP_USER_ID
     LEFT JOIN APP_COMENT ac ON ac.APP_POSTED_ID = ap.APP_POST_ID
     LEFT JOIN APP_USER au2 ON au2.ID_USER = ac.APP_SENDER_ID
+    WHERE ap.APP_USER_ID IN (?, (SELECT af.REQUIRED_USER_ID FROM APP_FRIEND af WHERE af.APPLICANT_USER_ID = ? AND af.APP_FRIEND_STATUS = "ACEPTADO"))
     GROUP BY ID_POST
     ORDER BY ap.APP_POST_DATE DESC;`;
-    conn.query(query, [commentId], (err, result) => {
+    conn.query(query, [id_usuario, id_usuario], (err, result) => {
         if (err) {
             console.error('Error al obtener los post:', err);
             res.json({ success: false, result: "Ha ocurrido un error al obtener los post" });

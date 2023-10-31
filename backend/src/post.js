@@ -36,19 +36,30 @@ router.post('', bucket.upload.single('APP_POST_IMAGE'), async (req, res) => {
 router.get('/:id_usuario', (req, res) => {
 
     const id_usuario = req.params.id_usuario;
-    const query = `SELECT ap.APP_POST_ID AS ID_POST, ap.APP_POST_IMAGE AS IMAGE_POST, ap.APP_POST_DESCRIPTION, ap.APP_POST_DATE,
-    au.ID_USER AS ID_USER_POST, au.FULL_NAME AS FULL_NAME_USER_POST, au.PICTURE AS IMAGE_USER_POST,
-    JSON_ARRAYAGG(JSON_OBJECT(
-    'APP_COMENT_ID', ac.APP_COMENT_ID ,'COMENT', ac.COMENT, 'APP_COMENT_DATE', ac.APP_COMENT_DATE,
-    'ID_USER_COMENT', au2.ID_USER, 'FULL_NAME_USER_COMENT', au2.FULL_NAME, 'IMAGE_USER_COMENT', au2.PICTURE
-    )) AS COMENTS
+    const query = `SELECT 
+        ap.APP_POST_ID AS ID_POST, 
+        ap.APP_POST_IMAGE AS IMAGE_POST, 
+        ap.APP_POST_DESCRIPTION, 
+        DATE_FORMAT(ap.APP_POST_DATE, '%d:%m:%Y %H:%i') AS APP_POST_DATE,
+        au.ID_USER AS ID_USER_POST, 
+        au.FULL_NAME AS FULL_NAME_USER_POST, 
+        au.PICTURE AS IMAGE_USER_POST,
+        JSON_ARRAYAGG(JSON_OBJECT(
+            'APP_COMENT_ID', ac.APP_COMENT_ID,
+            'COMENT', ac.COMENT,
+            'APP_COMENT_DATE', DATE_FORMAT(ac.APP_COMENT_DATE, '%d:%m:%Y %H:%i'),
+            'ID_USER_COMENT', au2.ID_USER,
+            'FULL_NAME_USER_COMENT', au2.FULL_NAME,
+            'IMAGE_USER_COMENT', au2.PICTURE
+        )) AS COMENTS
     FROM APP_POST ap
     INNER JOIN APP_USER au ON au.ID_USER = ap.APP_USER_ID
     LEFT JOIN APP_COMENT ac ON ac.APP_POSTED_ID = ap.APP_POST_ID
     LEFT JOIN APP_USER au2 ON au2.ID_USER = ac.APP_SENDER_ID
     WHERE ap.APP_USER_ID IN (?, (SELECT af.REQUIRED_USER_ID FROM APP_FRIEND af WHERE af.APPLICANT_USER_ID = ? AND af.APP_FRIEND_STATUS = "ACEPTADO"))
     GROUP BY ID_POST
-    ORDER BY ap.APP_POST_DATE DESC;`;
+    ORDER BY ap.APP_POST_DATE DESC;
+`;
     conn.query(query, [id_usuario, id_usuario], (err, result) => {
         if (err) {
             console.error('Error al obtener los post:', err);

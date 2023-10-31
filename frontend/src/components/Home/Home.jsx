@@ -321,17 +321,25 @@ const InputContainer = styled.div`
     border-top: 1px solid white;
 `;
 
+const InputComment = styled.div`
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0);
+`;
+
 const InputField = styled.textarea`
     flex: 1;
     width: 100%;
     border: none;
     padding: 10px;
     resize: none;
+    color: white;
+    background-color: rgb(0, 0, 0);
 `;
 
 const SendButton = styled.button`
-    background-color: #007bff;
-    border: none;
+    background-color: #000000;
+    border: 1px solid white;
     color: white;
     padding: 10px;
     border-radius: 8px;
@@ -630,13 +638,11 @@ export default function Home({ user, setUser }) {
     const [chatMessages, setChatMessages] = useState([]);
     const [listAmigos, setListAmigos] = useState([]);
     const [listConectar, setListConectar] = useState([]);
-    const [posts, setPost] = useState([
-        { time: "10/10/25", user: "Usuario 1", description: "Contenido de la publicación 1.", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", image: "images/PlaceHolder.jpg", comments: [{ time: "10/10/25", user: "User1", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }], tags: ["g", "h", "i"] },
-        { time: "10/10/25", user: "Usuario 2", description: "", image: "images/SemiSocial.png", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comments: [{ time: "10/10/25", user: "User1", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User6", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User7", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }], tags: ["f", "g", "h"] },
-        { time: "10/10/25", user: "Usuario 3", description: "Contenido de la publicación 3...", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", image: "images/PlaceHolder.jpg", comments: [{ time: "10/10/25", user: "User1", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }], tags: ["e", "f", "g"] },
-    ]);
+    const [posts, setPost] = useState([]);
+    const [newComment, setNewComment] = useState([]);
     const [newPost, setNewPost] = useState({ 'DESCRIPTION': '', 'imagen': 'images/PlaceHolder.jpg' });
-    const [filteredPosts, setFilteredPosts] = useState(posts);
+    const [filteredPosts, setFilteredPosts] = useState([]);
+    const [filterNewComment, setFilterNewComment] = useState([]);
     const [listEtiquetas, setListEtiquetas] = useState(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])
     const [editUser, setEditUser] = useState({ 'FULL_NAME': user.FULL_NAME, 'DPI': user.DPI, 'APP_PASSWORD': '', 'PICTURE': '' });
     const inputRef = useRef();
@@ -745,11 +751,16 @@ export default function Home({ user, setUser }) {
         const selectedTags = selected.map((option) => option.label);
         if (selectedTags.length === 0) {
             setFilteredPosts(posts)
+            setFilterNewComment(newComment)
         } else {
             const filtered = posts.filter((post) =>
                 post.tags.some((tag) => selectedTags.includes(tag))
             );
+            const filtered2 = newComment.filter((post) =>
+                post.tags.some((tag) => selectedTags.includes(tag))
+            );
             setFilteredPosts(filtered);
+            setFilterNewComment(filtered2);
         }
     };
 
@@ -1009,6 +1020,26 @@ export default function Home({ user, setUser }) {
                     .catch((err) => {
                         alert(err);
                     });
+                axios.get('/post/' + user.ID_USER)
+                    .then((res) => {
+                        if (res.data.success === true) {
+                            for (let i = 0; i < res.data.result.length; i++) {
+                                res.data.result[i] = {
+                                    ...res.data.result[i],
+                                    tags: [],
+                                }
+                            }
+                            setPost(res.data.result)
+                            setFilteredPosts(res.data.result)
+                            setNewComment(res.data.result.map(() => ''))
+                        }
+                        else {
+                            alert(res.data.result);
+                        }
+                    })
+                    .catch((err) => {
+                        alert(err);
+                    });
             } else {
                 push("/");
             }
@@ -1201,12 +1232,12 @@ export default function Home({ user, setUser }) {
                                             {filteredPosts.map((post, index) => (
                                                 <Post key={index}>
                                                     <LeftPost>
-                                                        <Username>{post.user}</Username>
-                                                        <LeftImage src={post.image} alt="Imagen izquierda" id={`leftImage-${index}`} onLoad={() => handleImageLoad(index)} />
+                                                        <Username>{post.FULL_NAME_USER_POST}</Username>
+                                                        <LeftImage src={process.env.REACT_APP_REQUEST_S3_URL + post.IMAGE_POST} alt="Imagen izquierda" id={`leftImage-${index}`} onLoad={() => handleImageLoad(index)} />
                                                     </LeftPost>
                                                     <RightPost id={`rightPost-${index}`}>
                                                         <RightTop>
-                                                            {post.description !== "" ? post.description : "Sin descripción."}
+                                                            {post.APP_POST_DESCRIPTION !== "" ? post.APP_POST_DESCRIPTION : "Sin descripción."}
                                                             <PostData>
                                                                 <PostTags>
                                                                     {post.tags.map((tag, index) => (
@@ -1214,22 +1245,36 @@ export default function Home({ user, setUser }) {
                                                                     ))}
                                                                 </PostTags>
                                                                 <PostMeta style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                                    <PostDate>Fecha: {post.time}</PostDate>
+                                                                    <PostDate>Fecha: {post.APP_POST_DATE}</PostDate>
                                                                     <TranslateIcon />
                                                                 </PostMeta>
                                                             </PostData>
                                                         </RightTop>
                                                         <RightBottom>
-                                                            {post.comments.map((comment, index) => (
-                                                                <CommentContainer key={index}>
-                                                                    <CommentText>
-                                                                        {comment.user}: {comment.comment}
-                                                                    </CommentText>
-                                                                    <CommentMeta>
-                                                                        <PostDate>Fecha: {comment.time}</PostDate>
-                                                                        <TranslateIcon />
-                                                                    </CommentMeta>
-                                                                </CommentContainer>
+                                                            <CommentContainer key={index}>
+                                                                <InputComment>
+                                                                    <InputField
+                                                                        placeholder="Comentario aquí..."
+                                                                        value={filterNewComment[index]}
+                                                                        onChange={(e) => filterNewComment[index] = e.target.value}
+                                                                    />
+                                                                    <SendButton onClick={handleSend}>Enviar</SendButton>
+                                                                </InputComment>
+                                                            </CommentContainer>
+                                                            {post.COMENTS.map((comment, index) => (
+                                                                <>
+                                                                    {comment.APP_COMENT_ID !== null && (
+                                                                        <CommentContainer key={index}>
+                                                                            <CommentText>
+                                                                                {comment.FULL_NAME_USER_COMENT}: {comment.COMENT}
+                                                                            </CommentText>
+                                                                            <CommentMeta>
+                                                                                <PostDate>Fecha: {comment.APP_COMENT_DATE}</PostDate>
+                                                                                <TranslateIcon />
+                                                                            </CommentMeta>
+                                                                        </CommentContainer>
+                                                                    )}
+                                                                </>
                                                             ))}
                                                         </RightBottom>
                                                     </RightPost>

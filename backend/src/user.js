@@ -142,6 +142,76 @@ router.post('/login', bucket.upload.single('PICTURE'), async (req, res) => {
     }
 });
 
+/** Actualizacion de un usuario */
+router.put('/:id_user', bucket.upload.single('PICTURE'), async (req, res) => {
+    try {
+
+        // Se obtienen los parametros necesarios
+        const id_user = req.params.id_user;
+        const { FULL_NAME, DPI, APP_PASSWORD } = req.body;
+
+        // Error: No ha ajuntado la foto
+        if (req.file === undefined || req.file == null) {
+            res.json({ success: false, result: "Es necesario adjuntar una foto para actualizar el perfil." });
+            return;
+        } else if (APP_PASSWORD === undefined) {
+            res.json({ success: false, result: "Se necesita la contraseña para realizar el cambio." });
+            return;
+        }
+
+        // Proceso de actualizacion
+        const query_select = 'SELECT PICTURE, APP_PASSWORD FROM APP_USER WHERE ID_USER = ?';
+        conn.query(query_select, [id_user], (err, result) => {
+            if (err) {
+                console.error('Error al obtener al usuario:', err);
+                res.json({ success: false, result: "Ha ocurrido un error al obtener al usuario" });
+            } else {
+
+                util.comparePassword(APP_PASSWORD, result[0].APP_PASSWORD)
+                    .then(esCorrecta => {
+                        if (esCorrecta) {
+
+                            bucket.deleteFiletoS3(result[0].PICTURE, (err, data) => {
+                                if (err) {
+                                    console.error('Error al eliminar la imagen de S3:', err);
+                                    res.json({ success: false, result: "Ha ocurrido un error al eliminar la imagen" });
+                                } else {
+                                    bucket.uploadFiletoS3(req.file, process.env.AWS_BUCKET_FOLDER_PROFILE, (err, data) => {
+                                        if (err) {
+                                            console.error('Error al subir el archivo de S3:', err);
+                                            res.json({ success: false, result: "Ha ocurrido un error al subir el archivo" });
+                                        } else {
+                                            const url_imagen = data;
+                                            const query = 'UPDATE APP_USER SET FULL_NAME = ?, DPI = ?, PICTURE = ? WHERE ID_USER = ?;';
+                                            conn.query(query, [FULL_NAME, DPI, url_imagen, id_user], (err, result) => {
+                                                if (err) {
+                                                    console.error('Error al actualizar el usuario:', err);
+                                                    res.json({ success: false, result: "Ha ocurrido un error al actualizar el usuario" });
+                                                } else {
+                                                    res.json({ success: true, result: "Usuario actualizado correctamente" });
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        } else {
+                            res.json({ success: false, result: "Contraseña incorrecta" });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al comparar contraseñas:', error);
+                        res.json({ success: false, result: "Ha ocurrido un error al desencriptar la contraseña" });
+                    });
+            }
+        });
+
+    } catch (error) {
+        console.error("Error al actualizar los datos del usuario:", error);
+        res.json({ success: false, result: "Ha ocurrido un error al actualizar los datos del usuario" });
+    }
+});
+
 router.get('/friends', async (req, res) => {
     const ID_USER = req.query.ID_USER;
 
@@ -186,17 +256,17 @@ router.get('/toconnect', async (req, res) => {
             FROM APP_FRIEND AF
             JOIN APP_USER AU ON AF.APPLICANT_USER_ID = AU.ID_USER
             WHERE AF.REQUIRED_USER_ID = ? AND AF.APP_FRIEND_STATUS = 'Enviada'
-            
+
             UNION
-            
+
             -- Obtener REQUIRED_USER_ID cuando APPLICANT_USER_ID = ID_USER y APP_FRIEND_STATUS = "Esperando"
             SELECT AF.REQUIRED_USER_ID AS OTHER_ID, AU.FULL_NAME, AU.PICTURE, 'Enviada' AS APP_FRIEND_STATUS
             FROM APP_FRIEND AF
             JOIN APP_USER AU ON AF.REQUIRED_USER_ID = AU.ID_USER
             WHERE AF.APPLICANT_USER_ID = ? AND AF.APP_FRIEND_STATUS = 'Enviada'
-            
+
             UNION
-            
+
             -- Obtener usuarios que no tienen una combinación con ID ID_USER y cualquier otra
             SELECT ID_USER AS OTHER_ID, FULL_NAME, PICTURE, 'Enviar' AS APP_FRIEND_STATUS
             FROM APP_USER
@@ -229,12 +299,12 @@ router.post('/friendrequest', async (req, res) => {
     const REQUIRED_USER_ID = req.body.REQUIRED_USER_ID;
     try {
         const query = "INSERT INTO APP_FRIEND (APPLICANT_USER_ID, REQUIRED_USER_ID, APP_FRIEND_STATUS) VALUES (?, ?, 'Enviada');";
-        conn.query(query, [APPLICANT_USER_ID,REQUIRED_USER_ID], async (err, result) => {
+        conn.query(query, [APPLICANT_USER_ID, REQUIRED_USER_ID], async (err, result) => {
             if (err) {
                 console.error('Error al enviar solicitud de amistad:', err);
                 res.json({ success: false, result: "Error al enviar la solicitud de amistad" });
             } else {
-                res.json({ success: true, result: "Solicitud enviada"});
+                res.json({ success: true, result: "Solicitud enviada" });
             }
         });
     } catch (error) {
@@ -248,12 +318,12 @@ router.put('/friendrequestaccept', async (req, res) => {
     const REQUIRED_USER_ID = req.body.REQUIRED_USER_ID;
     try {
         const query = "UPDATE APP_FRIEND SET APP_FRIEND_STATUS = 'Aceptada' WHERE APPLICANT_USER_ID = ? AND REQUIRED_USER_ID = ?;";
-        conn.query(query, [APPLICANT_USER_ID,REQUIRED_USER_ID], async (err, result) => {
+        conn.query(query, [APPLICANT_USER_ID, REQUIRED_USER_ID], async (err, result) => {
             if (err) {
                 console.error('Error al aceptar solicitud de amistad:', err);
                 res.json({ success: false, result: "Error al aceptar la solicitud de amistad" });
             } else {
-                res.json({ success: true, result: "Solicitud aceptada"});
+                res.json({ success: true, result: "Solicitud aceptada" });
             }
         });
     } catch (error) {
@@ -268,12 +338,12 @@ router.put('/friendrequestreject', async (req, res) => {
     try {
         const query = "DELETE FROM APP_FRIEND WHERE APPLICANT_USER_ID = ? AND REQUIRED_USER_ID = ?;";
         console.log(query, APPLICANT_USER_ID, REQUIRED_USER_ID)
-        conn.query(query, [APPLICANT_USER_ID,REQUIRED_USER_ID], async (err, result) => {
+        conn.query(query, [APPLICANT_USER_ID, REQUIRED_USER_ID], async (err, result) => {
             if (err) {
                 console.error('Error al rechazar solicitud de amistad:', err);
                 res.json({ success: false, result: "Error al rechazar la solicitud de amistad" });
             } else {
-                res.json({ success: true, result: "Solicitud rechazada"});
+                res.json({ success: true, result: "Solicitud rechazada" });
             }
         });
     } catch (error) {
@@ -287,7 +357,7 @@ router.get('/chat', async (req, res) => {
     // Se obtienen los parametros necesarios
     const ID_USER = req.query.ID_USER;
     const ID_FRIEND = req.query.ID_FRIEND;
-    
+
     try {
         const query = `
         SELECT
@@ -299,9 +369,9 @@ router.get('/chat', async (req, res) => {
         END AS isMine
         FROM APP_MESSAGE
         WHERE (TRANSMITER = ? AND RECEIVER = ?) OR (TRANSMITER = ? AND RECEIVER = ?)
-        ORDER BY APP_MESSAGE_DATE;    
+        ORDER BY APP_MESSAGE_DATE;
         `;
-        conn.query(query, [ID_USER, ID_FRIEND, ID_FRIEND, ID_USER,ID_USER, ID_FRIEND, ID_FRIEND, ID_USER], async (err, result) => {
+        conn.query(query, [ID_USER, ID_FRIEND, ID_FRIEND, ID_USER, ID_USER, ID_FRIEND, ID_FRIEND, ID_USER], async (err, result) => {
             if (err) {
                 console.error('Error al obtener los mensajes:', err);
                 res.json({ success: false, result: "Error al obtener los mensajes" });
@@ -327,7 +397,7 @@ router.post('/mensajes', async (req, res) => {
                 console.error('Error al enviar mensaje:', err);
                 res.json({ success: false, result: "Error al enviar mensaje" });
             } else {
-                res.json({ success: true, result: "Mensaje enviado"});
+                res.json({ success: true, result: "Mensaje enviado" });
             }
         });
     } catch (error) {

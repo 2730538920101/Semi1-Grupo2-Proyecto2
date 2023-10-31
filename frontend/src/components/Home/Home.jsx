@@ -987,6 +987,28 @@ export default function Home({ user, setUser }) {
         }
     }
 
+    const doNewComment = (index) => {
+        if (filterNewComment[index] !== '') {
+            axios.post("/comment/coments", {
+                COMENT: filterNewComment[index],
+                APP_SENDER_ID: user.ID_USER,
+                APP_POSTED_ID: posts[index].ID_POST
+            })
+                .then((res) => {
+                    if (res.data.success === true) {
+                        setNewComment(newComment.map((comment, i) => i === index ? '' : comment));
+                        setFilterNewComment(filterNewComment.map((comment, i) => i === index ? '' : comment));
+                    }
+                    else {
+                        alert(res.data.result);
+                    }
+                })
+                .catch((err) => {
+                    alert(err);
+                });
+        }
+    }
+
     useEffect(() => {
         fetchAndUpdateData();
         const intervalId = setInterval(fetchAndUpdateData, 1000);
@@ -1258,7 +1280,7 @@ export default function Home({ user, setUser }) {
                                                                         value={filterNewComment[index]}
                                                                         onChange={(e) => filterNewComment[index] = e.target.value}
                                                                     />
-                                                                    <SendButton onClick={handleSend}>Enviar</SendButton>
+                                                                    <SendButton onClick={() => doNewComment(index)}>Enviar</SendButton>
                                                                 </InputComment>
                                                             </CommentContainer>
                                                             {post.COMENTS.map((comment, index) => (

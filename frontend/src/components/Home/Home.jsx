@@ -624,6 +624,20 @@ const Publish2 = styled(Publish)`
     border-top-right-radius: 8px;
 `;
 
+const translationmodal = styled.div`
+    max-width: 50%;
+    max-height: 50%;
+    overflow: auto;
+    position: fixed;
+    top: 25%;
+    left: 25%;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    z-index: 1000;
+`;
+  
+
 export default function Home({ user, setUser }) {
 
     const push = useNavigate();
@@ -633,6 +647,7 @@ export default function Home({ user, setUser }) {
     const [newMessage, setNewMessage] = useState("");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showTranslationsModal, setShowTranslationsModal] = useState(false);
     const [tipo, setTipo] = useState(true);
     const [chatID, setChatID] = useState(-1);
     const [chatMessages, setChatMessages] = useState([]);
@@ -736,6 +751,15 @@ export default function Home({ user, setUser }) {
         label: item,
         value: index,
     }));
+
+    const openTranslationsModal = () => {
+        setShowTranslationsModal(true);
+      };
+      
+      const closeTranslationsModal = () => {
+        setShowTranslationsModal(false);
+      };
+      
 
     const openEditModal = () => {
         setShowEditModal(true);
@@ -996,8 +1020,7 @@ export default function Home({ user, setUser }) {
             })
                 .then((res) => {
                     if (res.data.success === true) {
-                        setNewComment(newComment.map((comment, i) => i === index ? '' : comment));
-                        setFilterNewComment(filterNewComment.map((comment, i) => i === index ? '' : comment));
+                        alert(res.data.result);
                     }
                     else {
                         alert(res.data.result);
@@ -1008,6 +1031,37 @@ export default function Home({ user, setUser }) {
                 });
         }
     }
+
+    const handleNewCommentChange = (index, { target }) => {
+        const { value } = target;
+        filterNewComment[index] = value;
+    }
+
+    const TranslationsModal = () => {
+        return (
+          <translationmodal>
+            <table>
+              <thead>
+                <tr>
+                  <th>IDIOMA</th>
+                  <th>Texto</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Español</td>
+                  <td>Texto en español</td>
+                </tr>
+                <tr>
+                  <td>Inglés</td>
+                  <td>Texto en inglés</td>
+                </tr>
+                {/* Agrega más filas para otras traducciones */}
+              </tbody>
+            </table>
+          </translationmodal>
+        );
+      };
 
     useEffect(() => {
         fetchAndUpdateData();
@@ -1278,7 +1332,7 @@ export default function Home({ user, setUser }) {
                                                                     <InputField
                                                                         placeholder="Comentario aquí..."
                                                                         value={filterNewComment[index]}
-                                                                        onChange={(e) => filterNewComment[index] = e.target.value}
+                                                                        onChange={(e) => handleNewCommentChange(index, e)}
                                                                     />
                                                                     <SendButton onClick={() => doNewComment(index)}>Enviar</SendButton>
                                                                 </InputComment>

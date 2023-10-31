@@ -188,7 +188,7 @@ router.put('/:id_user', bucket.upload.single('PICTURE'), async (req, res) => {
                                                     console.error('Error al actualizar el usuario:', err);
                                                     res.json({ success: false, result: "Ha ocurrido un error al actualizar el usuario" });
                                                 } else {
-                                                    res.json({ success: true, result: "Usuario actualizado correctamente" });
+                                                    res.json({ success: true, result: "Usuario actualizado correctamente", PICTURE: url_imagen });
                                                 }
                                             });
                                         }

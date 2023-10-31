@@ -9,7 +9,7 @@ import { BiMessageDetail, BiLogOut } from "react-icons/bi";
 import { RiUserSearchFill } from "react-icons/ri";
 import { BsTranslate, BsFillPersonPlusFill, BsSendCheckFill } from "react-icons/bs";
 import { MdOutlineCheckCircle, MdOutlineCancel, MdCancelPresentation } from "react-icons/md"
-import { AiFillEdit } from "react-icons/ai";
+import { AiFillEdit, AiOutlinePlus, AiOutlineSend } from "react-icons/ai";
 import axios from 'axios';
 axios.defaults.baseURL = process.env.REACT_APP_REQUEST_URL;
 
@@ -397,6 +397,19 @@ const RightBottom = styled.div`
     max-width: 100%;
 `;
 
+const RightComplete = styled.div`
+    flex: 1;
+    overflow-y: none;
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 10px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+    color: white;
+    white-space: pre-line;
+    word-wrap: break-word;
+`;
+
 const Username = styled.div`
     position: absolute;
     top: -15px;
@@ -584,6 +597,25 @@ const StyledWebcam = styled(Webcam)`
     height: 100%;
 `;
 
+const Publish = styled.div`
+    position: absolute;
+    bottom: 28px;
+    right: 22px;
+    background-color: black;
+    color: white;
+    padding: 5px;
+    border-top-left-radius: 8px;
+    border: 1px solid white;
+    z-index: 10;
+    color: white;
+`;
+
+const Publish2 = styled(Publish)`
+    bottom: 28px;
+    right: 110px;
+    border-top-right-radius: 8px;
+`;
+
 export default function Home({ user, setUser }) {
 
     const push = useNavigate();
@@ -599,26 +631,16 @@ export default function Home({ user, setUser }) {
     const [listAmigos, setListAmigos] = useState([]);
     const [listConectar, setListConectar] = useState([]);
     const [posts, setPost] = useState([
-        { time: "10/10/25", user: "Usuario 1", description: "Contenido de la publicación 1.", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", comment: "Este es un coment" }], tags: ["g", "h", "i"] },
-        { time: "10/10/25", user: "Usuario 2", description: "", image: "images/SemiSocial.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", comment: "Este es un coment" }, { time: "10/10/25", user: "User6", comment: "Este es un coment" }, { time: "10/10/25", user: "User7", comment: "Este es un coment" }], tags: ["f", "g", "h"] },
-        { time: "10/10/25", user: "Usuario 3", description: "Contenido de la publicación 3...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["e", "f", "g"] },
-        { time: "10/10/25", user: "Usuario 4", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["c", "e", "f"] },
-        { time: "10/10/25", user: "Usuario 5", description: "Contenido de la publicación 5...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["b", "c", "e"] },
-        { time: "10/10/25", user: "Usuario 6", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["a", "b", "c"] },
-        { time: "10/10/25", user: "Usuario 7", description: "Contenido de la publicación 7...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["j", "a", "b"] },
-        { time: "10/10/25", user: "Usuario 8", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["i", "j", "a"] },
-        { time: "10/10/25", user: "Usuario 9", description: "Contenido de la publicación 9...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["h", "i", "j"] },
-        { time: "10/10/25", user: "Usuario 10", description: "Contenido de la publicación 10...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["g", "h", "i"] },
-        { time: "10/10/25", user: "Usuario 11", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["f", "g", "h"] },
-        { time: "10/10/25", user: "Usuario 12", description: "Contenido de la publicación 12...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["e", "f", "g"] },
-        { time: "10/10/25", user: "Usuario 13", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["c", "e", "f"] },
-        { time: "10/10/25", user: "Usuario 14", description: "Contenido de la publicación 14...", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["b", "c", "e"] },
-        { time: "10/10/25", user: "Usuario 15", description: "", image: "images/Cuadrada.png", comments: [{ time: "10/10/25", user: "User1", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", comment: "Este es un comentario de prueba" }], tags: ["a", "b", "c"] },
+        { time: "10/10/25", user: "Usuario 1", description: "Contenido de la publicación 1.", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", image: "images/PlaceHolder.jpg", comments: [{ time: "10/10/25", user: "User1", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }], tags: ["g", "h", "i"] },
+        { time: "10/10/25", user: "Usuario 2", description: "", image: "images/SemiSocial.png", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comments: [{ time: "10/10/25", user: "User1", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User3", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User4", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User5", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User6", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }, { time: "10/10/25", user: "User7", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un coment" }], tags: ["f", "g", "h"] },
+        { time: "10/10/25", user: "Usuario 3", description: "Contenido de la publicación 3...", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", image: "images/PlaceHolder.jpg", comments: [{ time: "10/10/25", user: "User1", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }, { time: "10/10/25", user: "User2", selectedLanguage: "", isLanguageMenuOpen: false, traduccion: "", comment: "Este es un comentario de prueba" }], tags: ["e", "f", "g"] },
     ]);
+    const [newPost, setNewPost] = useState({ 'DESCRIPTION': '', 'imagen': 'images/PlaceHolder.jpg' });
     const [filteredPosts, setFilteredPosts] = useState(posts);
     const [listEtiquetas, setListEtiquetas] = useState(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"])
-    const [editUser, setEditUser] = useState({ 'name': '', 'EMAIL': '', 'dpi': '', 'APP_PASSWORD': '' });
+    const [editUser, setEditUser] = useState({ 'FULL_NAME': user.FULL_NAME, 'DPI': user.DPI, 'APP_PASSWORD': '', 'PICTURE': '' });
     const inputRef = useRef();
+    const inputRef2 = useRef();
     const webcamRef = useRef(null);
     const messageContainerRef = useRef(null);
 
@@ -634,34 +656,42 @@ export default function Home({ user, setUser }) {
         inputRef.current.click();
     };
 
+    const handleImagen2 = () => {
+        inputRef2.current.click();
+    };
+
     const handleChangeMode = () => {
         setTipo(!tipo);
     };
 
     const handleEdit = () => {
-        console.log(editUser)
-        if (editUser.name !== '' || editUser.EMAIL !== '' || editUser.dpi !== '' || editUser.APP_PASSWORD !== '') {
+        if (editUser.FULL_NAME !== '' || editUser.DPI !== '' || editUser.APP_PASSWORD !== '') {
             const formData = new FormData();
-            formData.append('FULL_NAME', editUser.name);
-            formData.append('EMAIL', editUser.EMAIL);
-            formData.append('DPI', editUser.dpi);
+            formData.append('FULL_NAME', editUser.FULL_NAME);
+            formData.append('DPI', editUser.DPI);
             formData.append('APP_PASSWORD', editUser.APP_PASSWORD);
             formData.append('PICTURE', editUser.imagenfile);
-            /*
-            axios.post('/user/register', formData)
+            axios.put("/user/" + user.ID_USER, formData)
                 .then((res) => {
                     if (res.data.success === true) {
-                        alert('Registro exitoso');
-                        setUser({ 'EMAIL': editUser.EMAIL, 'APP_PASSWORD': editUser.APP_PASSWORD });
-                        push('/');
-                    } else {
+                        alert(res.data.result);
+                        setUser({
+                            ...user,
+                            FULL_NAME: editUser.FULL_NAME,
+                            DPI: editUser.DPI,
+                            PICTURE: res.data.PICTURE
+                        });
+                        setEditUser({ 'FULL_NAME': user.FULL_NAME, 'DPI': user.DPI, 'APP_PASSWORD': '', 'PICTURE': '' })
+                        localStorage.setItem('semisocial_session', JSON.stringify({ 'ID_USER': user.ID_USER, 'FULL_NAME': editUser.FULL_NAME, 'EMAIL': user.EMAIL, 'DPI': editUser.DPI, 'APP_PASSWORD': editUser.APP_PASSWORD, 'PICTURE': res.data.PICTURE }));
+                        setShowEditModal(false);
+                    }
+                    else {
                         alert(res.data.result);
                     }
                 })
                 .catch((err) => {
                     alert(err);
                 });
-            */
         } else {
             alert('Debe llenar todos los campos');
         }
@@ -772,6 +802,17 @@ export default function Home({ user, setUser }) {
         if (leftImage) {
             const leftImageHeight = leftImage.clientHeight;
             const rightPost = document.getElementById(`rightPost-${index}`);
+            if (rightPost) {
+                rightPost.style.maxHeight = `${leftImageHeight}px`;
+            }
+        }
+    };
+
+    const handleImageLoadNew = () => {
+        const leftImage = document.getElementById(`leftImage-new`);
+        if (leftImage) {
+            const leftImageHeight = leftImage.clientHeight;
+            const rightPost = document.getElementById(`rightPost-new`);
             if (rightPost) {
                 rightPost.style.maxHeight = `${leftImageHeight}px`;
             }
@@ -982,6 +1023,14 @@ export default function Home({ user, setUser }) {
                     }
                 }
             });
+            const leftImage = document.getElementById(`leftImage-new`);
+            if (leftImage) {
+                const leftImageHeight = leftImage.clientHeight;
+                const rightPost = document.getElementById(`rightPost-new`);
+                if (rightPost) {
+                    rightPost.style.maxHeight = `${leftImageHeight}px`;
+                }
+            }
         };
 
         window.addEventListener("resize", handleWindowResize);
@@ -993,7 +1042,7 @@ export default function Home({ user, setUser }) {
 
     return (
         <Container>
-            <Media queries={{ small: "(max-width: 10px)" }}>
+            <Media queries={{ small: "(max-width: 0px)" }}>
                 {(matches) =>
                     matches.small ? (
                         <>
@@ -1035,9 +1084,8 @@ export default function Home({ user, setUser }) {
                                             <BlackBox>
                                                 <Title>Editar</Title>
                                                 <ContentContainer>
-                                                    <TextField type="email" name="EMAIL" placeholder="Correo Electronico" onChange={inputChange} value={editUser.EMAIL} />
-                                                    <TextField type="text" name="name" placeholder="Nombre" onChange={inputChange} value={editUser.name} />
-                                                    <TextField type="number" name="dpi" placeholder="DPI" onChange={inputChange} value={editUser.dpi} min="1000000000000" max="9999999999999" />
+                                                    <TextField type="text" name="FULL_NAME" placeholder="Nombre" onChange={inputChange} value={editUser.FULL_NAME} />
+                                                    <TextField type="number" name="DPI" placeholder="DPI" onChange={inputChange} value={editUser.DPI} min="1000000000000" max="9999999999999" />
                                                     <TextField type="password" name="APP_PASSWORD" placeholder="Contraseña" onChange={inputChange} value={editUser.APP_PASSWORD} />
                                                     {
                                                         tipo ? (
@@ -1088,7 +1136,45 @@ export default function Home({ user, setUser }) {
                                         </ModalContent>
                                     ) : (
                                         <>
-                                            {/* Renderiza la lista de publicaciones */}
+                                            <Post key={-1}>
+                                                <LeftPost>
+                                                    <LeftImage src={newPost.imagen} alt="Nuevo post" id='leftImage-new' onLoad={handleImageLoadNew} />
+                                                </LeftPost>
+                                                <RightPost id={`rightPost-new`}>
+                                                    <RightComplete>
+                                                        <textarea
+                                                            value={newPost.DESCRIPTION}
+                                                            onChange={(e) => setNewPost({ ...newPost, DESCRIPTION: e.target.value })}
+                                                            placeholder="Escribe tu publicación aquí..."
+                                                            style={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                fontSize: '14px',
+                                                                border: 'none',
+                                                                resize: 'none',
+                                                                outline: 'none',
+                                                            }}
+                                                        />
+                                                        <Publish style={{ cursor: 'pointer' }} ><AiOutlinePlus></AiOutlinePlus>{" Publicar"}</Publish>
+                                                        <Publish2 style={{ cursor: 'pointer' }} onClick={handleImagen2}><AiOutlinePlus></AiOutlinePlus>{" Subir imagen"}
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                style={{ display: 'none' }}
+                                                                ref={inputRef2}
+                                                                onChange={(e) => {
+                                                                    const file = e.target.files[0];
+                                                                    setNewPost({
+                                                                        ...newPost,
+                                                                        imagen: URL.createObjectURL(file),
+                                                                        imagenfile: file
+                                                                    });
+                                                                }}
+                                                            />
+                                                        </Publish2>
+                                                    </RightComplete>
+                                                </RightPost>
+                                            </Post>
                                             {filteredPosts.map((post, index) => (
                                                 <Post key={index}>
                                                     <LeftPost>

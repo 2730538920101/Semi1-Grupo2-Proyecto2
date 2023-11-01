@@ -143,7 +143,7 @@ router.post('/login', bucket.upload.single('PICTURE'), async (req, res) => {
 });
 
 /** Actualizacion de un usuario */
-router.put('/:id_user', bucket.upload.single('PICTURE'), async (req, res) => {
+router.put('/update/:id_user', bucket.upload.single('PICTURE'), async (req, res) => {
     try {
 
         // Se obtienen los parametros necesarios

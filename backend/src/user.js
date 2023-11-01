@@ -5,7 +5,7 @@ const cognito = require('./cognito_controller');
 const rekognition = require('./rekognition_controller');
 const util = require('./util');
 const conn = require('./conexion');
-
+const axios = require('axios');
 /*
 NOTA: Para habilitar la opción de inicio de sesión de un usuario a través de una imagen,
 es necesario que el usuario haya realizado al menos un inicio de sesión utilizando su contraseña previamente.
@@ -405,5 +405,32 @@ router.post('/mensajes', async (req, res) => {
         res.json({ success: false, result: "Error al enviar mensaje" });
     }
 });
+
+router.post('/translate', async (req, res) => {
+    console.log('Traduciendo mensaje:', req.body);
+    try {
+        const message = req.body.message;
+
+        if (!message) {
+            return res.status(400).send({ error: 'Se requiere el parámetro "message"' });
+        }
+
+        const response = await axios.post('https://dbnnpjlwse.execute-api.us-east-1.amazonaws.com/dev/traducir', {
+            body: message
+        });
+
+        if (response.data.statusCode !== 200) {
+            throw new Error('Error en el servicio de traducción');
+        }
+
+        const translatedMessage = JSON.parse(response.data.body);
+        res.json(translatedMessage);
+
+    } catch (error) {
+        console.error('Error al traducir mensaje:', error);
+        res.status(500).send({ error: error.message });
+    }
+});
+
 
 module.exports = router;

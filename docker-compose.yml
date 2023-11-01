@@ -16,6 +16,14 @@ services:
       DATABASE_PORT: ${DATABASE_PORT}
       SERVER_HOST: ${SERVER_HOST}
       SERVER_PORT: ${SERVER_PORT}
+      AWS_USER_POOL_ID: ${AWS_USER_POOL_ID}
+      AWS_CLIENT_ID: ${AWS_CLIENT_ID}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
+      AWS_BUCKET_FOLDER_PROFILE: ${AWS_BUCKET_FOLDER_PROFILE}
+      AWS_BUCKET_FOLDER_PUBLIC: ${AWS_BUCKET_FOLDER_PUBLIC}
 
   frontend:
     depends_on:
@@ -24,12 +32,16 @@ services:
     image: carlosmz87/semi1-proyecto2-frontend:local-V1
     build: ./frontend
     ports:
-      - "4200:80"
+      - "80:80"
     networks:
       - app_net
     links:
       - backend
-  
+    environment:
+      REACT_APP_REQUEST_URL: ${REACT_APP_REQUEST_URL}
+      REACT_APP_REQUEST_S3_URL: ${REACT_APP_REQUEST_S3_URL}
+      REACT_APP_REQUEST_TRANSLATE: ${REACT_APP_REQUEST_TRANSLATE}
+        
 networks:
   app_net:
     driver: bridge

@@ -3,31 +3,29 @@ resource "aws_key_pair" "Semi1-key" {
   public_key = file("${var.PATH_PUBLIC_KEYPAIR}")
 }
 
-resource "aws_instance" "ec2_node" {
-  ami                    = "ami-053b0d53c279acc90"
-  instance_type          = "t2.micro"
-  key_name               = aws_key_pair.Semi1-key.key_name
-  vpc_security_group_ids = [aws_security_group.Semi1-sg.id]
-  subnet_id              = aws_subnet.PublicS1.id
-  depends_on = [
-    aws_db_instance.mysql-instance
-  ]
-}
-
 resource "aws_instance" "ec2_database" {
   ami                    = "ami-053b0d53c279acc90"
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.Semi1-key.key_name
-  vpc_security_group_ids = [aws_security_group.Semi1-sg.id]
+  vpc_security_group_ids = [aws_security_group.Semi1-instances-sg.id]
+  subnet_id              = aws_subnet.PublicS1.id
+  
+}
+
+resource "aws_instance" "ec2_node" {
+  ami                    = "ami-053b0d53c279acc90"
+  instance_type          = "t2.micro"
+  key_name               = aws_key_pair.Semi1-key.key_name
+  vpc_security_group_ids = [aws_security_group.Semi1-instances-sg.id]
   subnet_id              = aws_subnet.PublicS1.id
   depends_on = [
-    aws_db_instance.mysql-instance
+    aws_instance.ec2_database
   ]
 }
 
 resource "aws_security_group" "Semi1-instances-sg" {
   vpc_id = aws_vpc.Semi1_VPC.id
-  name   = "Semi1_instances-sg"
+  name   = "Semi1-instances-sg"
   egress = [
     {
       cidr_blocks      = ["0.0.0.0/0", ]
@@ -36,7 +34,7 @@ resource "aws_security_group" "Semi1-instances-sg" {
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       protocol         = "-1"
-      security_groups  = [aws_security_group.Semi1-sg.id]
+      security_groups  = []
       self             = false
       to_port          = 0
     }
@@ -49,7 +47,7 @@ resource "aws_security_group" "Semi1-instances-sg" {
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       protocol         = "tcp"
-      security_groups  = [aws_security_group.Semi1-sg.id]
+      security_groups  = []
       self             = false
       to_port          = 22
     },
@@ -60,7 +58,7 @@ resource "aws_security_group" "Semi1-instances-sg" {
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       protocol         = "tcp"
-      security_groups  = [aws_security_group.Semi1-sg.id]
+      security_groups  = []
       self             = false
       to_port          = 3306
     },
@@ -71,7 +69,7 @@ resource "aws_security_group" "Semi1-instances-sg" {
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       protocol         = "tcp"
-      security_groups  = [aws_security_group.Semi1-sg.id]
+      security_groups  = []
       self             = false
       to_port          = 3000
     },
@@ -82,7 +80,7 @@ resource "aws_security_group" "Semi1-instances-sg" {
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       protocol         = "tcp"
-      security_groups  = [aws_security_group.Semi1-sg.id]
+      security_groups  = []
       self             = false
       to_port          = 80
     }

@@ -722,7 +722,7 @@ export default function Home({ user, setUser }) {
       formData.append("APP_PASSWORD", editUser.APP_PASSWORD);
       formData.append("PICTURE", editUser.imagenfile);
       axios
-        .put("/user/" + user.ID_USER, formData)
+        .put("/user/update/" + user.ID_USER, formData)
         .then((res) => {
           if (res.data.success === true) {
             alert(res.data.result);
@@ -1033,6 +1033,7 @@ export default function Home({ user, setUser }) {
         REQUIRED_USER_ID: user.ID_USER,
       })
       .then((res) => {
+        console.log(res.data)
         alert(res.data.result);
       })
       .catch((err) => {

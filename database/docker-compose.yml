@@ -13,6 +13,12 @@ services:
     volumes:
       - mysql-semi-vol:/var/lib/mysql
       - ./social-semi_init.sql:/docker-entrypoint-initdb.d/social-semi_init.sql
+    networks:
+      - app_net
 
 volumes:
   mysql-semi-vol:
+
+networks:
+  app_net:
+    driver: bridge

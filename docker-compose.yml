@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - app_net
+      - database_app_net
     environment:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
@@ -24,6 +24,7 @@ services:
       AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
       AWS_BUCKET_FOLDER_PROFILE: ${AWS_BUCKET_FOLDER_PROFILE}
       AWS_BUCKET_FOLDER_PUBLIC: ${AWS_BUCKET_FOLDER_PUBLIC}
+    
 
   frontend:
     depends_on:
@@ -34,7 +35,7 @@ services:
     ports:
       - "80:80"
     networks:
-      - app_net
+      - database_app_net
     links:
       - backend
     environment:
@@ -43,5 +44,5 @@ services:
       REACT_APP_REQUEST_TRANSLATE: ${REACT_APP_REQUEST_TRANSLATE}
         
 networks:
-  app_net:
-    driver: bridge
+  database_app_net:
+    external: true
